@@ -1,0 +1,2 @@
+# Django_Transportation_Management_System
+基于Django实现的物流管理系统（TMS，Transportation Management System）
