@@ -1,0 +1,4 @@
+[submodule "static/AdminLTE-3.0.5"]
+	path = static/AdminLTE-3.0.5
+	url = https://github.com/Pzqqt/AdminLTE.git
+	branch = v3.0.5-tms
