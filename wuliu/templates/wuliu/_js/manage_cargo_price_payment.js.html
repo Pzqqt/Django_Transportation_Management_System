@@ -1,0 +1,215 @@
+{% load wuliu_extras %}
+// <script>
+$(document).ready(function() {
+  document.querySelector('[name="create_date_end"]')._duDatepicker.minDate = $('#form-search_cargo_price_payment [name="create_date_start"]').val();
+  $('#form-search_cargo_price_payment [name="create_date_end"]').on("datechanged", function() {
+    document.querySelector('[name="create_date_start"]')._duDatepicker.maxDate = $(this).val();
+  });
+  $('#form-search_cargo_price_payment [name="create_date_start"]').on("datechanged", function() {
+    document.querySelector('[name="create_date_end"]')._duDatepicker.minDate = $(this).val();
+  });
+  function get_checked_cpp_only_one() {
+    let checked_cpp = find_datatable_rows_clicked(cargo_price_payment_table);
+    if (checked_cpp.length !== 1) {
+      mdtoast_error("请选择一个转账单。");
+      return;
+    }
+    return checked_cpp[0];
+  }
+  const logged_user_id = "{{ request.session.user.id }}";
+{% if "manage_cargo_price_payment__add_edit_delete_submit"|is_logged_user_has_perm:request %}
+  $("#button_cpp_edit").click(function() {
+    let checked_cpp = get_checked_cpp_only_one();
+    if (! checked_cpp) return;
+    let checked_cpp_status = checked_cpp.find("[data-status_id]").attr("data-status_id");
+    if (checked_cpp_status != "{{ CPP_STATUSES.Created }}" && checked_cpp_status != "{{ CPP_STATUSES.Rejected }}") {
+      mdtoast_error("提交后的转账单不允许修改。");
+      return;
+    }
+    if (logged_user_id != checked_cpp.find("[data-user_id]").attr("data-user_id")) {
+      mdtoast_error("你没有修改该转账单的权限。");
+      return;
+    }
+    let checked_cpp_id = checked_cpp.find("[data-cpp_id]").attr("data-cpp_id");
+    window.location.replace("{% url 'wuliu:edit_cargo_price_payment' %}?cpp_id=" + checked_cpp_id);
+  });
+  $("#button_cpp_delete").click(function() {
+    let checked_cpp = get_checked_cpp_only_one();
+    if (! checked_cpp) return;
+    let checked_cpp_status = checked_cpp.find("[data-status_id]").attr("data-status_id");
+    if (checked_cpp_status != "{{ CPP_STATUSES.Created }}" && checked_cpp_status != "{{ CPP_STATUSES.Rejected }}") {
+      mdtoast_error("提交后的转账单不允许删除。");
+      return;
+    }
+    if (logged_user_id != checked_cpp.find("[data-user_id]").attr("data-user_id")) {
+      mdtoast_error("你没有删除该转账单的权限。");
+      return;
+    }
+    confirm_dialog(
+      "确认删除", "你确定要删除该转账单吗？",
+      {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_drop_cargo_price_payment' %}",
+            {
+              "cpp_id": checked_cpp.find("[data-cpp_id]").attr("data-cpp_id"),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                cargo_price_payment_table.row(checked_cpp).remove().draw();
+                mdtoast_success("删除成功。");
+              } else {
+                alert_dialog("删除失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+  $("#button_cpp_confirm_submit").click(function() {
+    let checked_cpp = get_checked_cpp_only_one();
+    if (! checked_cpp) return;
+    let checked_cpp_status = checked_cpp.find("[data-status_id]").attr("data-status_id");
+    if (checked_cpp_status != "{{ CPP_STATUSES.Created }}" && checked_cpp_status != "{{ CPP_STATUSES.Rejected }}") {
+      mdtoast_error("提交后的转账单不允许重复提交。");
+      return;
+    }
+    if (logged_user_id != checked_cpp.find("[data-user_id]").attr("data-user_id")) {
+      mdtoast_error("你没有提交该转账单的权限。");
+      return;
+    }
+    confirm_dialog(
+      "确认提交", "你确定要提交该转账单吗？",
+      {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_submit_cargo_price_payment' %}",
+            {
+              "cpp_id": checked_cpp.find("[data-cpp_id]").attr("data-cpp_id"),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_cpp.find("[data-status_id]").attr("data-status_id", "{{ CPP_STATUSES.Submitted }}").html("{{ CPP_STATUSES.Submitted.label }}");
+                mdtoast_success("提交成功。");
+              } else {
+                alert_dialog("提交失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+{% if "manage_cargo_price_payment__review_reject"|is_logged_user_has_perm:request %}
+  $("#button_cpp_confirm_review").click(function() {
+    let checked_cpp = get_checked_cpp_only_one();
+    if (! checked_cpp) return;
+    if (checked_cpp.find("[data-status_id]").attr("data-status_id") != "{{ CPP_STATUSES.Submitted }}") {
+      mdtoast_error('只能审核"已提交"状态的转账单。');
+      return;
+    }
+    confirm_dialog(
+      "确认审核", "你确定要审核该转账单吗？此操作无法撤销！",
+      {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_review_cargo_price_payment' %}",
+            {
+              "cpp_id": checked_cpp.find("[data-cpp_id]").attr("data-cpp_id"),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_cpp.find("[data-status_id]").attr("data-status_id", "{{ CPP_STATUSES.Reviewed }}").html("{{ CPP_STATUSES.Reviewed.label }}");
+                mdtoast_success("操作成功。");
+              } else {
+                alert_dialog("操作失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+  $("#button_cpp_confirm_reject").click(function() {
+    let checked_cpp = get_checked_cpp_only_one();
+    if (! checked_cpp) return;
+    if (checked_cpp.find("[data-status_id]").attr("data-status_id") != "{{ CPP_STATUSES.Submitted }}") {
+      mdtoast_error('只能驳回"已提交"状态的转账单。');
+      return;
+    }
+    confirm_dialog(
+      "确认驳回",
+      '请输入驳回理由：' +
+      '<form class="form">' +
+        '<textarea ' +
+          'type="text" name="__reject_reason" ' +
+          'class="form-control" style="resize: vertical; height: 60px;">' +
+        '</textarea>' +
+      '</form>',
+      {
+        okClick: function() {
+          let reject_reason_text = $('[name="__reject_reason"]').val().trim();
+          if (! reject_reason_text) return;
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_reject_cargo_price_payment' %}",
+            {
+              "cpp_id": checked_cpp.find("[data-cpp_id]").attr("data-cpp_id"),
+              "reject_reason": reject_reason_text,
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_cpp.find("[data-status_id]").attr("data-status_id", "{{ CPP_STATUSES.Rejected }}").html("{{ CPP_STATUSES.Rejected.label }}");
+                mdtoast_success("操作成功。");
+              } else {
+                alert_dialog("操作失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+{% if "manage_cargo_price_payment__pay"|is_logged_user_has_perm:request %}
+  $("#button_cpp_confirm_pay").click(function() {
+    let checked_cpp = get_checked_cpp_only_one();
+    if (! checked_cpp) return;
+    if (checked_cpp.find("[data-status_id]").attr("data-status_id") != "{{ CPP_STATUSES.Reviewed }}") {
+      mdtoast_error('只能支付"已审核"状态的转账单。');
+      return;
+    }
+    confirm_dialog(
+      "确认支付",
+      "<p>请确保已成功完成支付，且收款人确实收到转账之后再进行确认。</p>" +
+      "<p>一旦确认，转账将统计入财务系统，此操作无法撤销！</p>",
+      {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_pay_cargo_price_payment' %}",
+            {
+              "cpp_id": checked_cpp.find("[data-cpp_id]").attr("data-cpp_id"),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_cpp.find("[data-status_id]").attr("data-status_id", "{{ CPP_STATUSES.Paid }}").html("{{ CPP_STATUSES.Paid.label }}");
+                checked_cpp.find("[data-key='cpp_settle_accounts_time']").attr("data-order", data.data.cpp_settle_accounts_time_timestamp).html(data.data.cpp_settle_accounts_time);
+                mdtoast_success("操作成功。");
+              } else {
+                alert_dialog("操作失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+});
+// </script>

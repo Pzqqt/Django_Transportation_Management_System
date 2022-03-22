@@ -1,0 +1,224 @@
+// <script>
+$(document).ready(function() {
+  function gen_handling_fee(department_info) {
+    let cargo_price = parseInt($('#form-edit_waybill [name="cargo_price"]').val());
+    let department_id = $('#form-edit_waybill [name="dst_department"]').val();
+    if (cargo_price < 0) {
+      cargo_price = -cargo_price;
+      $('#form-edit_waybill [name="cargo_price"]').val(cargo_price);
+    }
+    if (cargo_price === 0) {
+      $('#form-edit_waybill [name="cargo_handling_fee"]').val(0);
+      return;
+    }
+    let department_name = "";
+    let department_enable_cargo_price = true;
+    if (department_info && department_info.status === "success") {
+      department_name = department_info.info.name;
+      department_enable_cargo_price = department_info.info.enable_cargo_price;
+    } else if (department_id) {
+      $.ajax({
+        url: "{% url 'wuliu:api_get_department_info' %}?department_id=" + department_id,
+        type: "GET",
+        async: false,
+        dataType: "json",
+        success: function(data, status) {
+          department_name = data.data.department_info.name;
+          department_enable_cargo_price = data.data.department_info.enable_cargo_price;
+        },
+      });
+    }
+    if (!department_enable_cargo_price) {
+      $('#form-edit_waybill [name="cargo_price"]').val(0);
+      alert_dialog('"' + department_name + '"被管理员设置为不允许代收！');
+      return;
+    }
+    let handling_fee = cargo_price * {{ handling_fee_ratio | default:"0" }};
+    let real_handling_fee = parseInt(handling_fee);
+    if (handling_fee > real_handling_fee)
+      real_handling_fee += 1;
+    $('#form-edit_waybill [name="cargo_handling_fee"]').val(real_handling_fee);
+  }
+  function gen_standard_fee() {
+    let src_department = $('#form-edit_waybill [name="src_department"]').val();
+    let dst_department = $('#form-edit_waybill [name="dst_department"]').val();
+    let cargo_volume = $('#form-edit_waybill [name="cargo_volume"]').val() || 0;
+    let cargo_weight = $('#form-edit_waybill [name="cargo_weight"]').val() || 0;
+    if (!(src_department && dst_department && cargo_volume && cargo_weight))
+      return;
+    if (isNaN(parseInt(src_department)) || isNaN(parseInt(dst_department)))
+      return;
+    $.getJSON(
+      "{% url 'wuliu:api_gen_standard_fee' %}" +
+      "?src_dept_id=" + src_department + "&dst_dept_id=" + dst_department +
+      "&cargo_volume=" + cargo_volume + "&cargo_weight=" + cargo_weight,
+      function(result) {
+        if (result.code === 200) {
+          let standard_fee = result.data.standard_fee;
+          if (standard_fee === 0) standard_fee = 1;
+          $("#_fee_standard").html(standard_fee);
+        }
+      }
+    );
+  }
+  function gen_final_fee() {
+    function sum_all() {
+      let sum = 0;
+      for (let i=0; i<arguments.length; i++) {
+        let x = parseInt(arguments[i]);
+        if (isNaN(x))
+          x = 0;
+        sum += x;
+      }
+      return sum;
+    }
+    let fee = $('#form-edit_waybill [name="fee"]').val() || 0;
+    let fee_type = $('#form-edit_waybill [name="fee_type"]').attr("data-fee_type_id") || $('#form-edit_waybill [name="fee_type"]').val();
+    let cargo_price = $('#form-edit_waybill [name="cargo_price"]').val();
+    let cargo_handling_fee = $('#form-edit_waybill [name="cargo_handling_fee"]').val();
+    if (fee_type == "{{ WB_FEE_TYPES.SignFor }}") {
+      $("#_fee_now").html(0);
+      $("#_fee_dst").html(sum_all(cargo_price, cargo_handling_fee, fee));
+    } else if (fee_type == "{{ WB_FEE_TYPES.Now }}") {
+      $("#_fee_now").html(fee);
+      $("#_fee_dst").html(sum_all(cargo_price, cargo_handling_fee));
+    } else if (fee_type == "{{ WB_FEE_TYPES.Deduction }}") {
+      $("#_fee_now").html(0);
+      $("#_fee_dst").html(sum_all(cargo_price, cargo_handling_fee));
+    }
+  }
+  function fee_check() {
+    let fee = parseInt($('#form-edit_waybill [name="fee"]').val());
+    let fee_type = $('#form-edit_waybill [name="fee_type"]').val();
+    let cargo_price = parseInt($('#form-edit_waybill [name="cargo_price"]').val());
+    if (fee < 0) {
+      fee = -fee;
+      $('#form-edit_waybill [name="fee"]').val(fee);
+    }
+    if (cargo_price < 0) {
+      cargo_price = -cargo_price;
+      $('#form-edit_waybill [name="cargo_price"]').val(cargo_price);
+    }
+    if (fee_type == "{{ WB_FEE_TYPES.Deduction }}" && fee > cargo_price) {
+      alert_dialog("扣付运费时实际运费不能大于货款金额！");
+      $('#form-edit_waybill [name="fee"]').val(0);
+      return;
+    }
+    if (fee_type == "{{ WB_FEE_TYPES.Deduction }}") {
+      if (fee > cargo_price) {
+        alert_dialog("扣付运费时实际运费不能大于货款金额！");
+        $('#form-edit_waybill [name="fee"]').val(0);
+        return;
+      }
+      if (cargo_price === 0) {
+        alert_dialog("无代收货款时不允许使用扣付！");
+        $('#form-edit_waybill [name="fee_type"]').val("");
+      }
+    }
+  }
+  function lock_src_customer_info() {
+    for (let field_name of ["src_customer_name", "src_customer_phone", "src_customer_credential_num", "src_customer_address"]) {
+      $('#form-edit_waybill [name="'+field_name+'"]').attr("readonly", true);
+    }
+  }
+  function lock_dst_customer_info() {
+    for (let field_name of ["dst_customer_name", "dst_customer_phone", "dst_customer_credential_num", "dst_customer_address"]) {
+      $('#form-edit_waybill [name="'+field_name+'"]').attr("readonly", true);
+    }
+  }
+  if ($('#form-edit_waybill [name="src_customer"]').val()) lock_src_customer_info();
+  if ($('#form-edit_waybill [name="dst_customer"]').val()) lock_dst_customer_info();
+  gen_standard_fee();
+  gen_final_fee();
+  $('#form-edit_waybill [name="dst_department"]').change(function() {
+    let department = $(this);
+    let department_id = $(this).val();
+    if (! department_id) return;
+    if ($('#form-edit_waybill [name="src_department"]').val() == department_id) {
+      department.val("");
+      department.trigger("change");
+      alert_dialog("到达部门不能和发货部门一致！");
+      return;
+    }
+    $.getJSON("{% url 'wuliu:api_get_department_info' %}?department_id=" + department_id, function(result) {
+      if (result.code === 200 && !result.data.department_info.enable_dst) {
+        department.val("");
+        department.trigger("change");
+        alert_dialog('"' + result.data.name + '"被管理员设置为不允许到货！');
+        return;
+      }
+      gen_handling_fee(result);
+    });
+  });
+  $('#form-edit_waybill [name="src_customer"]').change(function() {
+    let customer_id = $(this).val();
+    if (customer_id) {
+      $.getJSON("{% url 'wuliu:api_get_customer_info' %}?customer_id=" + customer_id, function(result) {
+        let customer_info = result.data.customer_info;
+        $('#form-edit_waybill [name="src_customer_name"]').val(customer_info.name);
+        $('#form-edit_waybill [name="src_customer_phone"]').val(customer_info.phone);
+        $('#form-edit_waybill [name="src_customer_credential_num"]').val(customer_info.credential_num);
+        $('#form-edit_waybill [name="src_customer_address"]').val(customer_info.address);
+        lock_src_customer_info()
+      });
+    } else {
+      for (let field_name of ["src_customer_name", "src_customer_phone", "src_customer_credential_num", "src_customer_address"]) {
+        $('#form-edit_waybill [name="'+field_name+'"]').val("");
+        $('#form-edit_waybill [name="'+field_name+'"]').removeAttr("readonly");
+      }
+    }
+  });
+  $('#form-edit_waybill [name="dst_customer"]').change(function() {
+    let customer_id = $(this).val();
+    if (customer_id) {
+      $.getJSON("{% url 'wuliu:api_get_customer_info' %}?customer_id=" + customer_id, function(result) {
+        let customer_info = result.data.customer_info;
+        $('#form-edit_waybill [name="dst_customer_name"]').val(customer_info.name);
+        $('#form-edit_waybill [name="dst_customer_phone"]').val(customer_info.phone);
+        $('#form-edit_waybill [name="dst_customer_credential_num"]').val(customer_info.credential_num);
+        $('#form-edit_waybill [name="dst_customer_address"]').val(customer_info.address);
+        lock_dst_customer_info()
+      });
+    } else {
+      for (let field_name of ["dst_customer_name", "dst_customer_phone", "dst_customer_credential_num", "dst_customer_address"]) {
+        $('#form-edit_waybill [name="'+field_name+'"]').val("");
+        $('#form-edit_waybill [name="'+field_name+'"]').removeAttr("readonly");
+      }
+    }
+  });
+  $('#form-edit_waybill [name="cargo_price"]').change(function() {
+    fee_check();
+    gen_handling_fee();
+    gen_final_fee();
+  });
+  $('#form-edit_waybill [name="cargo_num"]').change(function() {
+    if ($(this).val() < 1) {
+      $(this).val(1);
+    }
+  });
+  $('#form-edit_waybill [name="cargo_volume"]').change(function() {
+    if ($(this).val() == 0) {
+      $(this).val("");
+    } else if ($(this).val() < 0) {
+      $(this).val(-$(this).val())
+    }
+  });
+  $('#form-edit_waybill [name="cargo_weight"]').change(function() {
+    if ($(this).val() == 0) {
+      $(this).val("");
+    } else if ($(this).val() < 0) {
+      $(this).val(-$(this).val())
+    }
+  });
+  $('#form-edit_waybill [name="fee"]').focus(gen_standard_fee);
+  $('#form-edit_waybill [name="fee"]').blur(function() {
+    fee_check();
+    gen_final_fee();
+  });
+  $('#form-edit_waybill [name="fee_type"]').change(function() {
+    fee_check();
+    gen_final_fee();
+  });
+  $('#form-edit_waybill [name="fee_type"]').blur(gen_final_fee);
+});
+// </script>

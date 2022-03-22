@@ -1,0 +1,57 @@
+{% extends "wuliu/_layout.html" %}
+{% load cache %}
+{% load wuliu_extras %}
+{% block title %}用户权限管理{% endblock %}
+{% block header_title %}用户权限管理{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:manage_user_permission' %}" id="form-manage_user_permission" class="form col-12" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <legend class="row">用户</legend>
+                    <div class="row align-items-end">
+                      {% show_form_input_field form.user "选择用户" "col col-md-3" %}
+                        <div class="col col-md-2">
+                            <button class="btn btn-primary mr-2" id="button_commit" style="margin-bottom: 0.125rem;">保存</button>
+                        </div>
+                      {% show_form_input_field form.permission %}
+                    </div>
+                    <legend class="row">权限</legend>
+                </fieldset>
+            </form>
+            <div class="col-12 col-md-6">
+                <a class="btn btn-primary" href="{% url 'wuliu:batch_edit_user_permission' %}">批量修改用户权限</a>
+              {% cache 300 "full_permission_tree" %}
+                {% show_full_permission_tree "permission_tree" %}
+              {% endcache %}
+            </div>
+<script>
+$(document).ready(function() {
+  $("#form-manage_user_permission [name='user']").change(function() {
+    let user_id = $(this).val();
+    for (let checkbox of $("#permission_tree input:checkbox:checked")) {
+      checkbox.click();
+    }
+    if (user_id) {
+      $.getJSON("{% url 'wuliu:api_get_user_permission' %}?user_id=" + user_id, function(result) {
+        for (let perm_name of result.data.perms) {
+          $("#" + perm_name + "_checkbox").click();
+        }
+      });
+    }
+  });
+  $("#button_commit").click(function(e) {
+    if (! $("#form-manage_user_permission [name='user']").val()) {
+      mdtoast_error("你没有选择任何用户。");
+      e.preventDefault()
+      return;
+    }
+    let permission_list = [];
+    for (let checkbox of $("#permission_tree input:checkbox:checked[data-is_group='0']")) {
+      permission_list.push($(checkbox).attr("data-select_value"));
+    }
+    $("#form-manage_user_permission [name='permission']").val(permission_list);
+    $("#form-manage_user_permission").submit();
+  })
+});
+</script>
+          {% endblock %}

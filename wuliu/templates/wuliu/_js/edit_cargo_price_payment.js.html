@@ -1,0 +1,77 @@
+// <script>
+$(document).ready(function() {
+  $('#form-add_cargo_price_payment_waybill').submit(function(e) {
+    e.preventDefault();
+    let add_waybill_id = $('#form-add_cargo_price_payment_waybill [name="add_waybill_id"]').val().trim();
+    if (! add_waybill_id) return;
+    let current_cpp_id = $('#form-payee_info [name="id"]').val();
+    if (! current_cpp_id) current_cpp_id = "";
+    $.post(
+      "{% url 'wuliu:api_add_waybill_when_edit_cargo_price_payment' %}",
+      {
+        "add_waybill_id": add_waybill_id,
+        "current_cpp_id": current_cpp_id,
+        "table_id": "cpp_waybill",
+      },
+      function(data, status) {
+        if (data.code === 200) {
+          let added_waybill_ids = [];
+          cpp_waybill_table.rows().nodes().each(function(row) {
+            added_waybill_ids.push(parseInt($(row).find("[data-wb_id]").attr("data-wb_id")));
+          });
+          if (added_waybill_ids.indexOf(data.data.waybill_id) !== -1) {
+            $('#form-payee_info [name="add_waybill_id"]').val("");
+            return;
+          }
+          cpp_waybill_table.row.add($(data.data.html)).draw();
+        } else {
+          mdtoast_error("添加失败！" + data.data.message);
+        }
+        $('#form-add_cargo_price_payment_waybill [name="add_waybill_id"]').val("");
+      }
+    )
+  });
+  $("#button_wb_remove").click(function() {
+    cpp_waybill_table.rows().nodes().each(function(row) {
+      if ($(row).find("input:checkbox").is(":checked")) {
+        cpp_waybill_table.row(row).remove();
+      }
+    });
+    cpp_waybill_table.draw();
+  });
+  $('#form-payee_info [name="customer"]').change(function() {
+    let customer_id = $(this).val();
+    if (customer_id) {
+      $.getJSON("{% url 'wuliu:api_get_customer_info' %}?customer_id=" + customer_id, function(result) {
+        let customer_info = result.data.customer_info;
+        $('#form-payee_info [name="payee_name"]').val(customer_info.name);
+        $('#form-payee_info [name="payee_phone"]').val(customer_info.phone);
+        $('#form-payee_info [name="payee_bank_name"]').val(customer_info.bank_name);
+        $('#form-payee_info [name="payee_bank_number"]').val(customer_info.bank_number);
+        $('#form-payee_info [name="payee_credential_num"]').val(customer_info.credential_num);
+      });
+    } else {
+      for (let field_name of ["payee_name", "payee_phone", "payee_bank_name", "payee_bank_number", "payee_credential_num"]) {
+        $('#form-payee_info [name="'+field_name+'"]').val("");
+      }
+    }
+  });
+  $("#button_cargo_price_payment_submit").click(function() {
+    for (let field_name of ["payee_name", "payee_phone", "payee_bank_name", "payee_bank_number", "payee_credential_num"]) {
+      if (! $('#form-payee_info input[name="'+field_name+'"]').val().trim()) {
+        mdtoast_error("请完善收款人信息！");
+        return;
+      }
+    }
+    let waybill_ids = find_datatable_rows_all(cpp_waybill_table).map(function(jq_obj) {
+      return jq_obj.find("[data-wb_id]").attr("data-wb_id");
+    });
+    if (waybill_ids.length === 0) {
+      mdtoast_error("你没有选择任何运单。");
+      return;
+    }
+    $('#form-payee_info input[name="waybill_ids"]').val(waybill_ids.join(","));
+    $('#form-payee_info').submit();
+  });
+});
+// </script>

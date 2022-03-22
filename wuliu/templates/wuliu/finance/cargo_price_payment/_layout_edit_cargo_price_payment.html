@@ -1,0 +1,73 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block head_append_js %}
+  <script src="{% url 'wuliu:edit_cargo_price_payment_js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form action="{% block form_action %}{% endblock %}" id="form-payee_info" class="form col-12 mb-2" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <legend class="row">收款人信息</legend>
+                  {% if form.id_ %}
+                    {{ form.id }}
+                    <div class="row">
+                        {% show_form_input_field form.id_ "" "col-8 col-md-3" %}
+                      {% if form.status %}
+                        {% show_form_input_field form.status "" "col-4 col-md-3" %}
+                      {% endif %}
+                      {% if form.create_time %}
+                        {% show_form_input_field form.create_time "" "col-6 col-md-3" %}
+                      {% endif %}
+                      {% if form.settle_accounts_time %}
+                        {% show_form_input_field form.settle_accounts_time "" "col-6 col-md-3" %}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                    <div class="row">
+                      {% if form.customer %}
+                        {% show_form_input_field form.customer "" "col-12 col-md-3" %}
+                      {% endif %}
+                        {% show_form_input_field form.payee_name "" "col-5 col-md-3" %}
+                        {% show_form_input_field form.payee_phone "" "col-7 col-md-3" %}
+                    </div>
+                    <div class="row">
+                        {% show_form_input_field form.payee_bank_name "" "col-5 col-md-3" %}
+                        {% show_form_input_field form.payee_bank_number "" "col-7 col-md" %}
+                        {% show_form_input_field form.payee_credential_num "" "col-12 col-md" %}
+                    </div>
+                    <div class="row">
+                        {% show_form_input_field form.remark "" "col-12 col-md-6" %}
+                      {% if detail_view %}
+                        {% show_form_input_field form.reject_reason "" "col-12 col-md-6" %}
+                      {% endif %}
+                    </div>
+                    <input name="waybill_ids" hidden>
+                </fieldset>
+            </form>
+            <form id="form-add_cargo_price_payment_waybill" class="form col-12 mb-2">
+                <fieldset>
+                    <legend class="row">费用列表</legend>
+                  {% if not detail_view %}
+                    <div class="row">
+                        <div class="input-group col-md-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text text-sm">添加运单</span>
+                            </div>
+                            <input type="text" class="form-control" name="add_waybill_id" aria-label="Default" data-allow_enter_submit>
+                        </div>
+                    </div>
+                  {% endif %}
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% block action_bar %}
+              {% endblock %}
+            </div>
+            <div class="col-12">
+              {% show_waybill_table waybill_list "cpp_waybill" %}
+            </div>
+            <div class="col-12">
+              {% block action_buttons %}
+              {% endblock %}
+            </div>
+          {% endblock %}

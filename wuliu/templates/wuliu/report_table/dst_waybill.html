@@ -1,0 +1,15 @@
+{% extends "wuliu/sign_for/manage_sign_for.html" %}
+{% load wuliu_extras %}
+{% block title %}到货报表{% endblock %}
+{% block header_title %}到货报表{% endblock %}
+{% block header_subtitle %}{% endblock %}
+              {% block search_form_action %}{% url 'wuliu:report_table_dst_waybill' %}{% endblock %}
+              {% block action_bar %}
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_export">
+                    <i class="ri-c ri-file-download-line"><span>导出</span></i>
+                </button>
+                {% js_export_table_to_excel "wb_search_result" "#button_wb_export" %}
+              {% endblock %}
+              {% block waybill_table %}
+                {% show_waybill_table waybill_list "wb_search_result" False %}
+              {% endblock %}

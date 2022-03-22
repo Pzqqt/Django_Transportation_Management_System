@@ -1,0 +1,12 @@
+{% extends "wuliu/finance/cargo_price_payment/_layout_edit_cargo_price_payment.html" %}
+{% block title %}新建代收款转账单{% endblock %}
+{% block header_title %}新建代收款转账单{% endblock %}
+{% block form_action %}{% url 'wuliu:add_cargo_price_payment' %}{% endblock %}
+              {% block action_bar %}
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_remove">
+                    <i class="ri-c ri-delete-bin-line"><span>删除</span></i>
+                </button>
+              {% endblock %}
+              {% block action_buttons %}
+                <button class="btn btn-primary" id="button_cargo_price_payment_submit">提交</button>
+              {% endblock %}

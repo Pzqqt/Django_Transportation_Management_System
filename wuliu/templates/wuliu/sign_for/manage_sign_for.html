@@ -1,0 +1,58 @@
+{% extends "wuliu/waybill/_layout_search_waybill.html" %}
+{% block title %}客户签收{% endblock %}
+{% block header_title %}客户签收{% endblock %}
+{% block header_subtitle %}请查询并选择客户需要签收的运单{% endblock %}
+              {% block search_form_action %}{% url 'wuliu:manage_sign_for' %}{% endblock %}
+              {% block action_bar %}
+                <button class="btn btn-outline-primary btn-sm" id="wb_confirm_sign_for">
+                    <i class="ri-c ri-archive-line"><span>确认签收</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="wb_return">
+                    <i class="ri-c ri-arrow-go-back-line"><span>退货</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="wb_reprint">
+                    <i class="ri-c ri-printer-line"><span>补打提货单</span></i>
+                </button>
+                <script>
+$(document).ready(function() {
+  $("#wb_confirm_sign_for").click(function() {
+    let checked_waybills = find_datatable_rows_clicked(wb_search_result_table);
+    if (checked_waybills.length === 0) {
+      mdtoast_error("请至少选择一个运单。");
+      return;
+    }
+    for (let jq_obj of checked_waybills.toArray()) {
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ WB_STATUSES.Arrived }}") {
+        mdtoast_error("只能选择尚未提货的运单。");
+        return;
+      }
+      if (jq_obj.find("[data-dst_dept_id]").attr("data-dst_dept_id") != "{{ request.session.user.department_id }}") {
+        mdtoast_error("禁止跨部门操作运单。");
+        return;
+      }
+    }
+    let sign_for_waybill_ids = checked_waybills.map(function(jq_obj) {
+      return jq_obj.find("[data-wb_id]").attr("data-wb_id");
+    });
+    window.location.replace("{% url 'wuliu:confirm_sign_for' %}?sign_for_waybill_ids=" + sign_for_waybill_ids.join(","));
+  });
+  $("#wb_return").click(function() {
+    let checked_waybill = find_datatable_rows_clicked(wb_search_result_table);
+    if (checked_waybill.length !== 1) {
+      mdtoast_error("请选择一个运单。");
+      return;
+    }
+    checked_waybill = checked_waybill[0];
+    if (checked_waybill.find("[data-dst_dept_id]").attr("data-dst_dept_id") != "{{ request.session.user.department_id }}") {
+      mdtoast_error("禁止跨部门操作运单。");
+      return;
+    }
+    if (checked_waybill.find("[data-status_id]").attr("data-status_id") != "{{ WB_STATUSES.Arrived}}") {
+      mdtoast_error("只能对尚未提货的运单进行退货操作。");
+      return;
+    }
+    window.location.replace("{% url 'wuliu:confirm_return_waybill' %}?waybill_id=" + checked_waybill.find("[data-wb_id]").attr("data-wb_id"));
+  });
+});
+                </script>
+              {% endblock %}

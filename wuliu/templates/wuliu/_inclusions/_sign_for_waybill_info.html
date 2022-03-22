@@ -1,0 +1,61 @@
+<div class="card bg-light shadow" data-waybill_id="{{ waybill.id }}">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-12 col-md">
+                <i class="fas fa-angle-right mr-2"></i>运单号：<span>{{ waybill.get_full_id }}</span>
+            </div>
+            <div class="col-12 col-md">
+                提付运费：<span data-fee>{% if waybill.fee_type == WB_FEE_TYPES.SignFor %}{{ waybill.fee }}{% else %}0{% endif %}</span>
+            </div>
+            <div class="col-12 col-md">
+                代收款：<span data-cargo_price>{{ waybill.cargo_price }}</span>
+            </div>
+            <div class="col-12 col-md">
+                应付金额：<span data-final_fee>
+              {% if waybill.fee_type == WB_FEE_TYPES.SignFor %}
+                {{ waybill.fee | add:waybill.cargo_price }}
+              {% else %}
+                {{ waybill.cargo_price }}
+              {% endif %}
+                </span>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a class="waybill-info-remove" href="javascript:"><span>移除</span></a>
+            </div>
+        </div>
+    </div>
+    <div class="card-body" style="display: none;">
+        <div class="row">
+            <div class="col-md-3">
+                发货人：<code>{{ waybill.src_customer_name }}</code>
+            </div>
+            <div class="col-md-3">
+                发货人电话：<code>{{ waybill.src_customer_phone }}</code>
+            </div>
+            <div class="col-md-3">
+                收货人：<code>{{ waybill.dst_customer_name }}</code>
+            </div>
+            <div class="col-md-3">
+                收货人电话：<code>{{ waybill.dst_customer_phone }}</code>
+            </div>
+            <div class="col-md-3">
+                发货部门：<code>{{ waybill.src_department.name }}</code>
+            </div>
+            <div class="col-md-3">
+                货物名称：<code>{{ waybill.cargo_name }}</code>
+            </div>
+            <div class="col-md-3">
+                件数：<code>{{ waybill.cargo_num }}</code>
+            </div>
+            <div class="col-md-3">
+                结算方式：<code>{{ waybill.get_fee_type_display }}</code>
+            </div>
+            <div class="col-md-6">
+                客户备注：<code>{{ waybill.customer_remark | default:"无" }}</code>
+            </div>
+            <div class="col-md-6">
+                公司备注：<code>{{ waybill.company_remark | default:"无" }}</code>
+            </div>
+        </div>
+    </div>
+</div>

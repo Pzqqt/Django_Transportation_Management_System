@@ -1,0 +1,59 @@
+{% load wuliu_extras %}
+{% load sum from utils_extras %}
+<div class="card card-primary card-outline shadow"><div class="card-body">
+    <table id="{{ table_id }}" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_checkbox_all">
+                        <label class="custom-control-label" for="{{ table_id }}_checkbox_all"></label>
+                    </div>
+                </th>
+                <th>账单编号</th>
+                <th>状态</th>
+                <th>应回款日期</th>
+                <th>创建时间</th>
+                <th>结算时间</th>
+                <th>回款部门</th>
+                <th>收款部门</th>
+                <th>应回款金额总计</th>
+                <th>现付运费合计</th>
+                <th>提付运费合计</th>
+                <th>代收货款合计</th>
+                <th hidden>回款部门备注</th>
+                <th hidden>收款部门备注</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for department_payment in department_payment_list %}
+            <tr>
+                <td></td>
+                <td data-dp_id="{{ department_payment.id }}">
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_to_{{ department_payment.id }}">
+                        <label class="custom-control-label" for="{{ table_id }}_to_{{ department_payment.id }}"></label>
+                    </div>
+                </td>
+                <td data-order="{{ department_payment.id }}"><a href="{% url 'wuliu:detail_department_payment' department_payment.id %}">{{ department_payment.get_full_id }}</a></td>
+                <td data-key="dp_status" data-status_id="{{ department_payment.status }}" data-order="{{ department_payment.status }}">{{ department_payment.get_status_display }}</td>
+                <td data-key="dp_payment_date">{{ department_payment.payment_date | date:"Y-m-d" }}</td>
+                <td data-key="dp_create_time" data-order="{{ department_payment.create_time.timestamp }}">{{ department_payment.create_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="dp_settle_accounts_time" data-order="{{ department_payment.settle_accounts_time.timestamp }}">{{ department_payment.settle_accounts_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="dp_src_department" data-src_dept_id="{{ department_payment.src_department.id }}">{{ department_payment.src_department.name }}</td>
+                <td data-key="dp_dst_department" data-dst_dept_id="{{ department_payment.dst_department.id }}">{{ department_payment.dst_department.name }}</td>
+              {% with total_fee_dic=department_payment.gen_total_fee %}
+                <td data-key="dp_final_total_fee">{{ total_fee_dic.values | sum }}</td>
+                <td data-key="dp_total_fee_now">{{ total_fee_dic.fee_now }}</td>
+                <td data-key="dp_total_fee_sign_for">{{ total_fee_dic.fee_sign_for }}</td>
+                <td data-key="dp_total_cargo_price">{{ total_fee_dic.cargo_price }}</td>
+              {% endwith %}
+                <td hidden data-key="dp_src_remark">{{ department_payment.src_remark }}</td>
+                <td hidden data-key="dp_dst_remark">{{ department_payment.dst_remark }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% js_init_datatable table_id True 4 %}

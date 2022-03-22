@@ -1,0 +1,61 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}部门回款单{% endblock %}
+{% block header_title %}部门回款单{% endblock %}
+{% block header_subtitle %}收款部门创建 -&gt; 财务部审核 -&gt; 回款部门支付 -&gt; 财务部结算{% endblock %}
+{% block head_append_js %}
+  <script src="{% url 'wuliu:manage_department_payment_js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:manage_department_payment' %}" id="form-search_department_payment" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10 mb-2">
+                            <div class="row">
+                                {% show_form_input_field_with_append_select form.src_department form.src_department_group "" "col-md-6" %}
+                                {% show_form_input_field form.payment_date_start "" "col-4 col-md" %}
+                                {% show_form_input_field form.payment_date_end "" "col-4 col-md" %}
+                                {% show_form_input_field form.status "" "col-4 col-md" %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% if "manage_department_payment__add_delete"|is_logged_user_has_perm:request %}
+                <a href="{% url 'wuliu:add_department_payment' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="ri-c ri-add-fill"><span>新增</span></i>
+                </a>
+                <button class="btn btn-outline-primary btn-sm" id="button_dp_delete">
+                    <i class="ri-c ri-delete-bin-line"><span>删除</span></i>
+                </button>
+              {% endif %}
+                <button class="btn btn-outline-primary btn-sm" id="button_dp_edit_remark">
+                    <i class="ri-c ri-file-edit-line"><span>修改备注</span></i>
+                </button>
+              {% if "manage_department_payment__review"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_dp_confirm_review">
+                    <i class="ri-c ri-eye-line"><span>确认审核</span></i>
+                </button>
+              {% endif %}
+              {% if "manage_department_payment__settle"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_dp_confirm_settle_accounts">
+                    <i class="ri-c ri-flag-line"><span>确认结算</span></i>
+                </button>
+              {% endif %}
+              {% if "manage_department_payment__pay"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_dp_confirm_pay">
+                    <i class="ri-c ri-money-cny-circle-line"><span>确认支付</span></i>
+                </button>
+              {% endif %}
+            </div>
+            <div class="col-12">
+                {% show_department_payment_table department_payment_list "dp_search_result" %}
+            </div>
+          {% endblock %}

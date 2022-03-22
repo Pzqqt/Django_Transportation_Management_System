@@ -1,0 +1,6 @@
+<div class="{{ div_class }}" style="{% if field.field.widget.attrs.hidden or field.is_hidden %}display: none;{% endif %}">
+    <label class="{% if field.field.required %}label-required{% endif %}" for="{{ field.id_for_label }}">
+        {{ label | default:"" }}
+    </label>
+    {{ field }}
+</div>

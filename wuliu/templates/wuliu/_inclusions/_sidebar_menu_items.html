@@ -1,0 +1,28 @@
+{% load wuliu_extras %}
+{% for item in items %}
+<li class="nav-item has-treeview {% if item.opened %}menu-open{% endif %}">
+  <a href="{{ item.url | default:'#' }}" class="nav-link {% if item.opened %}active{% endif %}">
+    <i class="{{ item.icon | default:'fas fa-circle' }} nav-icon"></i>
+    <p>
+        {{ item.name }}
+        <i class="right fas fa-angle-left"></i>
+    </p>
+  </a>
+  <ul class="nav nav-treeview">
+{% for item_child in item.children %}
+  {# 如果item_child不需要任何权限, 或item_child需要权限且用户拥有该权限 #}
+  {% if not item_child.need_perm or item_child.need_perm and item_child.need_perm|is_logged_user_has_perm:request %}
+  {# 如果item_child不需要管理员权限, 或item_child需要管理员权限且用户是管理员 #}
+  {% if not item_child.admin_only or request|is_logged_user_is_admin %}
+    <li class="nav-item">
+      <a href="{{ item_child.url | default:'#' }}" class="nav-link {% if item_child.opened %}active{% endif %}">
+        <i class="{{ item_child.icon | default:'far fa-circle' }} nav-icon"></i>
+        <p>{{ item_child.name }}</p>
+      </a>
+    </li>
+  {% endif %}
+  {% endif %}
+{% endfor %}
+  </ul>
+</li>
+{% endfor %}

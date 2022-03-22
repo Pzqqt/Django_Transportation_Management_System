@@ -1,0 +1,37 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}客户积分记录{% endblock %}
+{% block header_title %}客户积分记录{% endblock %}
+{% block header_subtitle %}查询会员客户的积分变更记录，或手动增减积分。在查询结果中点击客户姓名可以查看客户的当前积分。{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:manage_customer_score' %}" id="form-search_customer_score_log" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10 mb-2">
+                            <div class="row">
+                                {% show_form_input_field form.customer_name "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.customer_phone "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.create_date_start "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.create_date_end "" "col-6 col-md-3" %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% if "customer_score_log__add"|is_logged_user_has_perm:request %}
+                <a href="{% url 'wuliu:add_customer_score_log' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="ri-c ri-edit-2-line"><span>变更积分</span></i>
+                </a>
+              {% endif %}
+            </div>
+            <div class="col-12">
+                {% show_customer_score_log_table customer_score_logs "customer_score_logs" %}
+            </div>
+          {% endblock %}

@@ -1,0 +1,49 @@
+{% extends "wuliu/transport_out/_layout_edit_transport_out.html" %}
+{% block title %}修改车次计划{% endblock %}
+{% block header_title %}修改车次计划{% endblock %}
+{% block head_append_js %}
+    {{ block.super }}
+    <script>
+$(document).ready(function() {
+  $("#button_wb_remove").click(function() {
+    let checked_waybills = find_datatable_rows_clicked(ready_transport_out_table);
+    if (checked_waybills.length === 0) {
+      mdtoast_error("你没有选择任何运单。");
+      return;
+    }
+    confirm_dialog(
+      "移除运单", "你确定要从该车次中移除这些运单吗？", {
+        okClick: function() {
+          this.hide();
+          let remove_list = checked_waybills.map(function(jq_obj) {
+            return jq_obj.find("[data-wb_id]").attr("data-wb_id");
+          });
+          $.post(
+            "{% url 'wuliu:api_remove_waybill_when_edit_transport_out' %}",
+            {
+              "remove_list": remove_list.join(","),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                ready_transport_out_table.rows().nodes().each(function(row) {
+                  if ($(row).find("input:checkbox").is(":checked")) {
+                    ready_transport_out_table.row(row).remove();
+                  }
+                });
+                ready_transport_out_table.draw();
+                mdtoast_success("移除成功。");
+              } else {
+                mdtoast_error("移除失败。");
+              }
+            }
+          );
+        }
+      }
+    );
+  });
+});
+    </script>
+{% endblock %}
+              {% block action_buttons %}
+                <button class="btn btn-primary" id="transport_submit">提交更改</button>
+              {% endblock %}

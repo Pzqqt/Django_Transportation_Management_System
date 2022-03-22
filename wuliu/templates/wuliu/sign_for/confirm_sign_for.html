@@ -1,0 +1,67 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}确认提货{% endblock %}
+{% block header_title %}确认提货{% endblock %}
+{% block head_append_js %}
+    <script src="{% url 'wuliu:confirm_sign_for_js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form id="form-add_sign_for_waybill" class="form col-12 mb-2">
+                <fieldset>
+                    <legend class="row">运单信息</legend>
+                    <div class="row">
+                        <div class="input-group col-md-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text text-sm">添加运单</span>
+                            </div>
+                            <input type="text" class="form-control" name="add_waybill_id" aria-label="Default" data-allow_enter_submit>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="accordion col-12">
+              {% for waybill in waybill_list %}
+                {% show_sign_for_waybill_info waybill %}
+              {% endfor %}
+            </div>
+            <form id="form-confirm_sign_for" class="form col-12 mb-2">
+                <fieldset>
+                    <legend class="row">签收信息</legend>
+                    <div class="row">
+                        <div class="col-6 col-md">
+                            <label for="total_num">单数合计</label>
+                            <input class="form-control" type="text" id="total_num" readonly/>
+                        </div>
+                        <div class="col-6 col-md">
+                            <label for="total_fee">提付运费合计</label>
+                            <input class="form-control" type="text" id="total_fee" readonly/>
+                        </div>
+                        <div class="col-6 col-md">
+                            <label for="total_cargo_price">代收款合计</label>
+                            <input class="form-control" type="text" id="total_cargo_price" readonly/>
+                        </div>
+                        <div class="col-6 col-md">
+                            <label for="final_fee">应收合计</label>
+                            <input class="form-control" type="text" id="final_fee" readonly/>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="label-required" for="sign_for_name">签收人</label>
+                            <input class="form-control" type="text" id="sign_for_name" name="sign_for_name" required/>
+                        </div>
+                        <div class="col-md">
+                            <label class="label-required" for="sign_for_credential_num">身份证号码</label>
+                            <input class="form-control" type="text" id="sign_for_credential_num" name="sign_for_credential_num" required/>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12">
+                <button class="btn btn-primary" id="button_sign_for_submit">确认签收</button>
+                <button class="btn btn-primary" id="button_sign_for_submit_and_print">签收并打印提货单</button>
+            </div>
+          {% endblock %}

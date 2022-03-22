@@ -1,0 +1,18 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}新增部门回款单{% endblock %}
+{% block header_title %}新增部门回款单{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:add_department_payment' %}" class="form col-12" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        {% show_form_input_field_with_append_select form.src_department form.src_department_group "" "col-md-6" %}
+                        {% show_form_input_field form.dst_department "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.payment_date "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.dst_remark "" "col-12 mb-2" %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </fieldset>
+            </form>
+          {% endblock %}

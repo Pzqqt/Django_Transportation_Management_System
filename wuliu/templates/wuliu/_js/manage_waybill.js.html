@@ -1,0 +1,100 @@
+// <script>
+$(document).ready(function() {
+  $("#button_wb_edit").click(function() {
+    let checked_waybill = find_datatable_rows_clicked(wb_search_result_table);
+    if (checked_waybill.length !== 1) {
+      mdtoast_error("请选择一个运单。");
+      return;
+    }
+    checked_waybill = checked_waybill[0];
+    if (checked_waybill.find("[data-src_dept_id]").attr("data-src_dept_id") != "{{ request.session.user.department_id }}") {
+      mdtoast_error("禁止跨部门修改运单。");
+      return;
+    }
+    let checked_waybill_id = checked_waybill.find("[data-wb_id]").attr("data-wb_id");
+    let td_status = checked_waybill.find("[data-status_id]");
+    if (parseInt(td_status.attr("data-status_id")) > "{{ WB_STATUSES.Loaded }}") {
+      mdtoast_error(td_status.text() + "的运单不允许再修改。");
+      return;
+    }
+    window.location.replace("{% url 'wuliu:edit_waybill' %}?waybill_id=" + checked_waybill_id);
+  });
+  $("#button_wb_drop").click(function() {
+    let checked_waybill = find_datatable_rows_clicked(wb_search_result_table);
+    if (checked_waybill.length !== 1) {
+      mdtoast_error("请选择一个运单。");
+      return;
+    }
+    checked_waybill = checked_waybill[0];
+    if (checked_waybill.find("[data-src_dept_id]").attr("data-src_dept_id") != "{{ request.session.user.department_id }}") {
+      mdtoast_error("禁止跨部门作废运单。");
+      return;
+    }
+    let checked_waybill_id = checked_waybill.find("[data-wb_id]").attr("data-wb_id");
+    let td_status = checked_waybill.find("[data-status_id]");
+    if (parseInt(td_status.attr("data-status_id")) > "{{ WB_STATUSES.Loaded }}") {
+      mdtoast_error(td_status.text() + "的运单不允许作废。");
+      return;
+    }
+    confirm_dialog(
+      "删除",
+      '请输入作废原因：' +
+      '<form class="form mt-2">' +
+      '<input type="text" name="__drop_waybill_reason" class="form-control">' +
+      '</form>',
+      {
+        okClick: function() {
+          let drop_waybill_reason = $('[name="__drop_waybill_reason"]').val().trim();
+          if (! drop_waybill_reason) return;
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_drop_waybill' %}",
+            {
+              "drop_waybill_id": checked_waybill_id,
+              "drop_waybill_reason": drop_waybill_reason,
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                mdtoast_success("运单作废成功。");
+                td_status.html("已作废");
+                td_status.attr("data-status_id", data.data.waybill_status_now);
+              } else {
+                alert_dialog("运单作废失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+  $("#button_wb_create_transport_out").click(function() {
+    let checked_waybills = find_datatable_rows_clicked(wb_search_result_table);
+    if (checked_waybills.length === 0) {
+      mdtoast_error("请至少选择一个运单。");
+      return;
+    }
+    for (let jq_obj of checked_waybills.toArray()) {
+    {% if logged_user_type == USER_TYPES.GoodsYard %}
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ WB_STATUSES.GoodsYardArrived }}") {
+        mdtoast_error('只能选择"货场入库"状态的运单。');
+        return;
+      }
+    {% else %}
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") >= "{{ WB_STATUSES.Loaded }}") {
+        mdtoast_error("只能选择尚未配载/发车的运单。");
+        return;
+      }
+      if (jq_obj.find("[data-src_dept_id]").attr("data-src_dept_id") != "{{ request.session.user.department_id }}") {
+        mdtoast_error("禁止跨部门配载运单。");
+        return;
+      }
+    {% endif %}
+    }
+    let waybills_ready_to_transport_out = checked_waybills.map(function(jq_obj) {
+      return jq_obj.find("[data-wb_id]").attr("data-wb_id");
+    });
+    $('#form-create_transport_out [name="wb_add_list"]').val(waybills_ready_to_transport_out.join(","));
+    $('#form-create_transport_out').submit();
+  });
+});
+// </script>

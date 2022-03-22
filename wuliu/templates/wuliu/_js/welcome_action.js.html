@@ -1,0 +1,106 @@
+// <script>
+$(document).ready(function() {
+  $("#today_waybill").click(function() {
+    $.StandardPost(
+      "{% url 'wuliu:manage_waybill' %}",
+      {
+        "waybill_status": [],
+        "create_date_start": "{{ today }}",
+        "create_date_end": "{{ today }}",
+      {% if logged_user_type == USER_TYPES.Branch %}
+        "src_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    );
+  });
+  $("#today_transport_out").click(function() {
+    $.StandardPost(
+      "{% url 'wuliu:manage_transport_out' %}",
+      {
+        "status": ["{{ TO_STATUSES.OnTheWay }}", "{{ TO_STATUSES.Arrived }}"],
+        "create_date_start": "{{ today }}",
+        "create_date_end": "{{ today }}",
+      {% if logged_user_type == USER_TYPES.Branch or logged_user_type == USER_TYPES.GoodsYard %}
+        "src_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    );
+  });
+  $("#today_arrival").click(function() {
+  {% if logged_user_type == USER_TYPES.GoodsYard %}
+    $.StandardPost(
+      "{% url 'wuliu:manage_waybill' %}",
+      {
+        "waybill_status": ["{{ WB_STATUSES.Arrived }}", "{{ WB_STATUSES.SignedFor }}"],
+      },
+    );
+  {% else %}
+    $.StandardPost(
+      "{% url 'wuliu:manage_sign_for' %}",
+      {
+        "arrival_date_start": "{{ today }}",
+        "arrival_date_end": "{{ today }}",
+      {% if logged_user_type == USER_TYPES.Branch %}
+        "dst_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    );
+  {% endif %}
+  });
+  $("#today_sign_for").click(function() {
+    $.StandardPost(
+      "{% url 'wuliu:manage_sign_for' %}",
+      {
+        "waybill_status": ["{{ WB_STATUSES.SignedFor }}", ],
+        "sign_for_date_start": "{{ today }}",
+        "sign_for_date_end": "{{ today }}",
+      {% if logged_user_type == USER_TYPES.Branch or logged_user_type == USER_TYPES.GoodsYard %}
+        "dst_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    );
+  });
+  $("#wait_waybill").click(function() {
+    // TODO
+  });
+  $("#wait_transport_out").click(function() {
+    $.StandardPost(
+      "{% url 'wuliu:manage_waybill' %}",
+      {
+        "waybill_status":
+      {% if logged_user_type != USER_TYPES.GoodsYard %}
+        ["{{ WB_STATUSES.Created }}", "{{ WB_STATUSES.Loaded }}"]
+      {% else %}
+        ["{{ WB_STATUSES.GoodsYardArrived }}", "{{ WB_STATUSES.GoodsYardLoaded }}"]
+      {% endif %}
+        ,
+      {% if logged_user_type == USER_TYPES.Branch %}
+        "src_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    )
+  });
+  $("#wait_arrival").click(function() {
+    $.StandardPost(
+      "{% url 'wuliu:manage_arrival' %}",
+      {
+        "status": ["{{ TO_STATUSES.OnTheWay }}", ],
+      {% if logged_user_type == USER_TYPES.Branch or logged_user_type == USER_TYPES.GoodsYard %}
+        "dst_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    );
+  });
+  $("#wait_sign_for").click(function() {
+    $.StandardPost(
+      "{% url 'wuliu:manage_sign_for' %}",
+      {
+        "waybill_status": ["{{ WB_STATUSES.Arrived }}", ],
+      {% if logged_user_type == USER_TYPES.Branch or logged_user_type == USER_TYPES.GoodsYard %}
+        "dst_department": "{{ logged_user_dept_id }}",
+      {% endif %}
+      },
+    );
+  });
+});
+// </script>

@@ -1,0 +1,46 @@
+{% extends "wuliu/transport_out/_layout_edit_transport_out.html" %}
+{% load wuliu_extras %}
+{% block title %}确认到货{% endblock %}
+{% block header_title %}确认到货{% endblock %}
+              {% block action_bar %}
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_export">导出清单</button>
+                {% js_export_table_to_excel "ready_transport_out" "#button_wb_export" 1 "'到货清单_' + $(\"form input[name='id_']\").val()" True %}
+              {% endblock %}
+              {% block waybill_table %}
+                {% show_waybill_table waybills_info_list "ready_transport_out" False %}
+              {% endblock %}
+              {% block action_buttons %}
+                <button class="btn btn-primary" id="button_arrival_confirm">确认到货</button>
+                <script>
+$(document).ready(function() {
+  $("#button_arrival_confirm").click(function() {
+    let transport_out_id_full = $("#form-edit_transport_out [name='id_']").val();
+    let transport_out_id = parseInt(transport_out_id_full.slice(2));
+    if (isNaN(transport_out_id)) {
+      mdtoast_error("无效的车次编号！");
+      return;
+    }
+    confirm_dialog(
+      "确认到货", "你确定要确认到货吗？", {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_confirm_arrival' %}",
+            {
+              "transport_out_id": transport_out_id,
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                window.location.replace("{% url 'wuliu:manage_arrival' %}");
+              } else {
+                mdtoast_error("操作失败："+data.data.message);
+              }
+            }
+          );
+        }
+      }
+    );
+  });
+});
+                </script>
+              {% endblock %}

@@ -1,0 +1,58 @@
+{% load wuliu_extras %}
+<div class="card card-primary card-outline shadow"><div class="card-body">
+    <table id="{{ table_id }}" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_checkbox_all">
+                        <label class="custom-control-label" for="{{ table_id }}_checkbox_all"></label>
+                    </div>
+                </th>
+                <th>车次编号</th>
+                <th>车次状态</th>
+                <th>创建时间</th>
+                <th>发车时间</th>
+                <th>到达时间</th>
+                <th>发车部门</th>
+                <th>到达部门</th>
+                <th>车牌号</th>
+                <th>驾驶员</th>
+                <th>驾驶员电话</th>
+                <th>货物总单数</th>
+                <th>货物总件数</th>
+                <th>货物总体积 (m³)</th>
+                <th>货物总重量 (Kg)</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for transport_out in transport_out_list %}
+            <tr>
+                <td></td>
+                <td data-to_id="{{ transport_out.id }}">
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_to_{{ transport_out.id }}">
+                        <label class="custom-control-label" for="{{ table_id }}_to_{{ transport_out.id }}"></label>
+                    </div>
+                </td>
+                <td data-order="{{ transport_out.id }}"><a href="{% url 'wuliu:detail_transport_out' %}?transport_out_id={{ transport_out.id }}">{{ transport_out.get_full_id }}</a></td>
+                <td data-key="to_status" data-order="{{ transport_out.status }}" data-status_id="{{ transport_out.status }}">{{ transport_out.get_status_display }}</td>
+                <td data-key="to_create_time" data-order="{{ transport_out.create_time.timestamp }}">{{ transport_out.create_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="to_start_time" data-order="{{ transport_out.start_time.timestamp }}">{{ transport_out.start_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="to_end_time" data-order="{{ transport_out.end_time.timestamp }}">{{ transport_out.end_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="to_src_department" data-src_dept_id="{{ transport_out.src_department.id }}">{{ transport_out.src_department.name }}</td>
+                <td data-key="to_dst_department" data-dst_dept_id="{{ transport_out.dst_department.id }}">{{ transport_out.dst_department.name }}</td>
+                <td data-key="to_truck" data-truck_id="{{ transport_out.truck.id }}">{{ transport_out.truck.number_plate }}</td>
+                <td data-key="to_driver_name">{{ transport_out.driver_name }}</td>
+                <td data-key="to_driver_phone">{{ transport_out.driver_phone }}</td>
+                <td data-key="to_total_num">{{ transport_out.total_num }}</td>
+                <td data-key="to_total_cargo_num">{{ transport_out.total_cargo_num }}</td>
+                <td data-key="to_total_cargo_volume">{{ transport_out.total_cargo_volume | floatformat:2 }}</td>
+                <td data-key="to_total_cargo_weight">{{ transport_out.total_cargo_weight | floatformat }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% js_init_datatable table_id True 4 %}

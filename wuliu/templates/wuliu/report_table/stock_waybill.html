@@ -1,0 +1,38 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}发货库存{% endblock %}
+{% block header_title %}发货库存{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:report_table_stock_waybill' %}" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                {% show_form_input_field_with_append_select form.src_department form.src_department_group "" "col-12 col-md-6" %}
+                                {% show_form_input_field_with_append_select form.dst_department form.dst_department_group "" "col-12 col-md-6" %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.create_date_start "" "col-6 col-md" %}
+                                {% show_form_input_field form.create_date_end "" "col-6 col-md" %}
+                                {% show_form_input_field form.waybill_status %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_export">
+                    <i class="ri-c ri-file-download-line"><span>导出</span></i>
+                </button>
+              {% js_export_table_to_excel "wb_search_result" "#button_wb_export" %}
+            </div>
+            <div class="col-12">
+              {% show_stock_waybill_table waybill_list "wb_search_result" %}
+            </div>
+          {% endblock %}

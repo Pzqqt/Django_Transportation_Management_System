@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+{% load static %}
+{% load wuliu_extras %}
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="theme-color" content="#3d4f5d">
+
+  <title>登录 | {% get_company_name %}</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/dist/css/adminlte.min.css' %}">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+  <!-- Custom -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/mdtoast.css' %}">
+  <script src="{% static 'js/mdtoast.min.js' %}"></script>
+
+  <style>
+    .background-img {
+      background: url("{% static 'img/background.jpg' %}") no-repeat;
+      background-size: cover;
+    }
+    .login-box-blur {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(8.5px);
+      -webkit-backdrop-filter: blur(8.5px);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .input-blur {
+      background-color: rgba(255, 255, 255, 0.3);
+      border: none;
+    }
+    .input-group input::-webkit-input-placeholder {
+      color: #555555;
+    }
+    .input-group input:-moz-placeholder {
+      color: #555555;
+    }
+    .input-group input:-ms-input-placeholder {
+      color: #555555;
+    }
+  </style>
+</head>
+<body class="hold-transition login-page background-img">
+  <div class="login-box login-box-blur">
+    <div class="login-logo text-white">{% get_company_name %}运输管理系统</div>
+    <p class="login-box-msg text-white">请登录</p>
+    <form class="mb-2" action="{% url 'wuliu:login' %}" method="post">
+      {% csrf_token %}
+      <div class="input-group mb-3">
+        <input type="text" class="form-control input-blur" name="username" placeholder="用户名">
+        <div class="input-group-append">
+          <div class="input-group-text">
+            <span class="fas fa-user"></span>
+          </div>
+        </div>
+      </div>
+      <div class="input-group mb-3">
+        <input type="password" class="form-control input-blur" name="password" placeholder="密码">
+        <div class="input-group-append">
+          <div class="input-group-text">
+            <span class="fas fa-lock"></span>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col"></div>
+        <div class="col-4">
+          <button type="submit" class="btn btn-primary btn-block">登录</button>
+        </div>
+      </div>
+    </form>
+  {% if messages %}
+    <script>
+      {% for message in messages %}
+        mdtoast("{{ message }}", {type: mdtoast.ERROR});
+      {% endfor %}
+    </script>
+  {% endif %}
+  </div>
+</body>
+</html>

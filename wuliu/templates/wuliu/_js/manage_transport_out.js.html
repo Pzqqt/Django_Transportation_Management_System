@@ -1,0 +1,97 @@
+// <script>
+$(document).ready(function() {
+  document.querySelector('[name="create_date_end"]')._duDatepicker.minDate = $('#form-search_transport_out [name="create_date_start"]').val();
+  $('#form-search_transport_out [name="create_date_end"]').on("datechanged", function() {
+    document.querySelector('[name="create_date_start"]')._duDatepicker.maxDate = $(this).val();
+  });
+  $('#form-search_transport_out [name="create_date_start"]').on("datechanged", function() {
+    document.querySelector('[name="create_date_end"]')._duDatepicker.minDate = $(this).val();
+  });
+  $("#button_to_edit").click(function() {
+    let checked_transport_out = find_datatable_rows_clicked(to_search_result_table);
+    if (checked_transport_out.length !== 1) {
+      mdtoast_error("请选择一个车次。");
+      return;
+    }
+    checked_transport_out = checked_transport_out[0];
+    let checked_transport_out_id = checked_transport_out.find("[data-to_id]").attr("data-to_id");
+    let td_status = checked_transport_out.find("[data-status_id]");
+    if (parseInt(td_status.attr("data-status_id")) > "{{ TO_STATUSES.Ready }}") {
+      mdtoast_error("已发车的车次不允许修改。");
+      return;
+    }
+    window.location.replace("{% url 'wuliu:edit_transport_out' %}?transport_out_id=" + checked_transport_out_id);
+  });
+  $("#button_to_drop").click(function() {
+    let checked_transport_out = find_datatable_rows_clicked(to_search_result_table);
+    if (checked_transport_out.length !== 1) {
+      mdtoast_error("请选择一个车次。");
+      return;
+    }
+    checked_transport_out = checked_transport_out[0];
+    let checked_transport_out_id = checked_transport_out.find("[data-to_id]").attr("data-to_id");
+    let td_status = checked_transport_out.find("[data-status_id]");
+    if (parseInt(td_status.attr("data-status_id")) > "{{ TO_STATUSES.Ready }}") {
+      mdtoast_error("已发车的车次不允许删除。");
+      return;
+    }
+    confirm_dialog(
+      "删除", "你确定要删除该车次吗？", {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_drop_transport_out' %}",
+            {
+              "drop_transport_out_id": checked_transport_out_id,
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                mdtoast_success("车次删除成功。");
+                to_search_result_table.row(checked_transport_out).remove().draw();
+              } else {
+                mdtoast_error("车次删除失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+  $("#button_to_start").click(function() {
+    let checked_transport_out = find_datatable_rows_clicked(to_search_result_table);
+    if (checked_transport_out.length !== 1) {
+      mdtoast_error("请选择一个车次。");
+      return;
+    }
+    checked_transport_out = checked_transport_out[0];
+    let checked_transport_out_id = checked_transport_out.find("[data-to_id]").attr("data-to_id");
+    let td_status = checked_transport_out.find("[data-status_id]");
+    if (parseInt(td_status.attr("data-status_id")) > "{{ TO_STATUSES.Ready }}") {
+      mdtoast_error("该车次已经发车。");
+      return;
+    }
+    confirm_dialog(
+      "发车", "你确定要发车吗？", {
+        okClick: function() {
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_start_transport_out' %}",
+            {
+              "start_transport_out_id": checked_transport_out_id,
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                mdtoast_success("发车成功。");
+                checked_transport_out.find("[data-status_id]").attr("data-status_id", "{{ TO_STATUSES.OnTheWay }}").html("{{ TO_STATUSES.OnTheWay.label }}");
+                checked_transport_out.find("td[data-key='to_start_time']").attr("data-order", data.data.start_time_timestamp).html(data.data.start_time);
+              } else {
+                alert_dialog("发车失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+});
+// </script>

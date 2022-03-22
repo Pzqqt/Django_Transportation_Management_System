@@ -1,0 +1,19 @@
+{% extends "wuliu/_layout.html" %}
+{% load static %}
+{% load wuliu_extras %}
+{% block title %}客户积分变更{% endblock %}
+{% block header_title %}新增客户积分变更记录{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:add_customer_score_log' %}" class="form col-12" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        {% show_form_input_field form.customer "" "col-md-6" %}
+                        {% show_form_input_field form.inc_or_dec "变动方式" "col-6 col-md-3" %}
+                        {% show_form_input_field form.score "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.remark "" "col-12 mb-2" %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </fieldset>
+            </form>
+          {% endblock %}

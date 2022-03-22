@@ -1,0 +1,31 @@
+{% load wuliu_extras %}
+<div class="card bg-light mt-2"><div class="card-body" id="{{ div_id }}">
+  {% _show_permission_tree list %}
+</div></div>
+<script>
+$(function() {
+  {# 移除首个缩进 #}
+  $("#{{ div_id }} ol:first").removeClass("tree-pl");
+});
+$(document).ready(function() {
+  $("#{{ div_id }} .fa-minus-square,.fa-plus-square").click(function() {
+    $($(this).parents("ol")[0]).children("ol").toggle();
+    if ($(this).hasClass("fa-plus-square"))
+      $(this).removeClass("fa-plus-square").addClass("fa-minus-square");
+    else if ($(this).hasClass("fa-minus-square"))
+      $(this).removeClass("fa-minus-square").addClass("fa-plus-square");
+  });
+  $("#{{ div_id }} input:checkbox").change(function() {
+    let this_is_checked = $(this).is(":checked");
+    for (let ol of $($(this).parents("ol")[0]).children("ol")) {
+      for (let checkbox of $(ol).find("input:checkbox")) {
+        if (this_is_checked) {
+          if (! $(checkbox).is(":checked")) checkbox.click();
+        } else {
+          if ($(checkbox).is(":checked")) checkbox.click();
+        }
+      }
+    }
+  });
+});
+</script>

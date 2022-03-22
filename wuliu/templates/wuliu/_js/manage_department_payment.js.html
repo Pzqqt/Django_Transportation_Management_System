@@ -1,0 +1,249 @@
+{% load wuliu_extras %}
+// <script>
+$(document).ready(function() {
+  document.querySelector('[name="payment_date_end"]')._duDatepicker.minDate = $('#form-search_department_payment [name="payment_date_start"]').val();
+  $('#form-search_department_payment [name="payment_date_end"]').on("datechanged", function() {
+    document.querySelector('[name="payment_date_start"]')._duDatepicker.maxDate = $(this).val();
+  });
+  $('#form-search_department_payment [name="payment_date_start"]').on("datechanged", function() {
+    document.querySelector('[name="payment_date_end"]')._duDatepicker.minDate = $(this).val();
+  });
+  const user_dept_id = "{{ request.session.user.department_id }}";
+  function get_checked_dp_all() {
+    let checked_dp = find_datatable_rows_clicked(dp_search_result_table);
+    if (checked_dp.length === 0) {
+      mdtoast_error("请至少选择一个回款单。");
+      return;
+    }
+    return checked_dp;
+  }
+  function get_checked_dp_only_one() {
+    let checked_dp = find_datatable_rows_clicked(dp_search_result_table);
+    if (checked_dp.length !== 1) {
+      mdtoast_error("请选择一个回款单。");
+      return;
+    }
+    return checked_dp[0];
+  }
+  $("#button_dp_edit_remark").click(function() {
+    let checked_dp = get_checked_dp_only_one();
+    if (! checked_dp) return;
+    if (checked_dp.find("[data-status_id]").attr("data-status_id") == "{{ DP_STATUSES.Settled.value }}") {
+      mdtoast_error("已结算的回款单不允许修改备注。");
+      return;
+    }
+    let remark_type;
+    if (user_dept_id == checked_dp.find("[data-src_dept_id]").attr("data-src_dept_id")) {
+      remark_type = "src";
+    } else if (user_dept_id == checked_dp.find("[data-dst_dept_id]").attr("data-dst_dept_id")) {
+      remark_type = "dst";
+    } else {
+      mdtoast_error("你没有修改备注的权限。");
+      return;
+    }
+    confirm_dialog(
+      "修改" + (remark_type === "src" ? "回款部门" : "收款部门") + "备注",
+      '请输入：' +
+      '<form class="form mt-2">' +
+        '<textarea ' +
+          'type="text" name="__remark" ' +
+          'class="form-control" style="resize: vertical; height: 60px;">' +
+          checked_dp.find('[data-key="dp_'+remark_type+'_remark"]').text() +
+        '</textarea>' +
+      '</form>',
+      {
+        okClick: function() {
+          let remark_text = $('[name="__remark"]').val().trim();
+          if (! remark_text) return;
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_modify_remark_department_payment' %}",
+            {
+              "dp_id": checked_dp.find("[data-dp_id]").attr("data-dp_id"),
+              "remark_dept_type": remark_type,
+              "remark_text": remark_text,
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_dp.find('[data-key="dp_'+remark_type+'_remark"]').html(remark_text);
+                mdtoast_success("备注修改成功。");
+              } else {
+                alert_dialog("备注修改失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% if "manage_department_payment__pay"|is_logged_user_has_perm:request %}
+  $("#button_dp_confirm_pay").click(function() {
+    let checked_dp = get_checked_dp_all();
+    if (! checked_dp) return;
+    for (let jq_obj of checked_dp.toArray()) {
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ DP_STATUSES.Reviewed.value }}") {
+        mdtoast_error('只能对"已审核"的回款单进行确认支付操作。');
+        return;
+      }
+      if (jq_obj.find("[data-src_dept_id]").attr("data-src_dept_id") != user_dept_id) {
+        mdtoast_error("只能对当前部门的回款单进行确认支付操作。");
+        return;
+      }
+    }
+    confirm_dialog(
+      "确认支付",
+      "请确保已成功完成支付，且收款部门确实收到转账之后再进行确认。",
+      {
+        okClick: function() {
+          let checked_dp_ids = checked_dp.map(function(jq_obj) {
+            return jq_obj.find("[data-dp_id]").attr("data-dp_id");
+          });
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_pay_department_payment' %}",
+            {
+              "dp_ids": checked_dp_ids.join(","),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_dp.each(function(jq_obj) {
+                  jq_obj.find("[data-status_id]").attr("data-status_id", "{{ DP_STATUSES.Paid }}").html("{{ DP_STATUSES.Paid.label }}");
+                });
+                mdtoast_success("提交成功。");
+              } else {
+                alert_dialog("提交失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+{% if "manage_department_payment__add_delete"|is_logged_user_has_perm:request %}
+  $("#button_dp_delete").click(function() {
+    let checked_dp = get_checked_dp_all();
+    if (! checked_dp) return;
+    for (let jq_obj of checked_dp.toArray()) {
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ DP_STATUSES.Created.value }}") {
+        mdtoast_error("只能删除尚未审核的回款单。");
+        return;
+      }
+    }
+    confirm_dialog(
+      "删除回款单",
+      "你确定要删除这些回款单吗？",
+      {
+        okClick: function() {
+          let checked_dp_ids = checked_dp.map(function(jq_obj) {
+            return jq_obj.find("[data-dp_id]").attr("data-dp_id");
+          });
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_drop_department_payment' %}",
+            {
+              "dp_ids": checked_dp_ids.join(","),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_dp.each(function(row) {
+                  dp_search_result_table.row(row).remove();
+                });
+                dp_search_result_table.draw();
+                mdtoast_success("删除成功。");
+              } else {
+                alert_dialog("删除失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+{% if "manage_department_payment__review"|is_logged_user_has_perm:request %}
+  $("#button_dp_confirm_review").click(function() {
+    let checked_dp = get_checked_dp_all();
+    if (! checked_dp) return;
+    for (let jq_obj of checked_dp.toArray()) {
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ DP_STATUSES.Created.value }}") {
+        mdtoast_error("只能审核尚未审核的回款单。");
+        return;
+      }
+    }
+    confirm_dialog(
+      "审核回款单",
+      "你确定要审核这些回款单吗？此操作无法撤销！",
+      {
+        okClick: function() {
+          let checked_dp_ids = checked_dp.map(function(jq_obj) {
+            return jq_obj.find("[data-dp_id]").attr("data-dp_id");
+          });
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_review_department_payment' %}",
+            {
+              "dp_ids": checked_dp_ids.join(","),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_dp.each(function(jq_obj) {
+                  jq_obj.find("[data-status_id]").attr("data-status_id", "{{ DP_STATUSES.Reviewed }}").html("{{ DP_STATUSES.Reviewed.label }}");
+                });
+                mdtoast_success("审核成功。");
+              } else {
+                alert_dialog("审核失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+{% if "manage_department_payment__settle"|is_logged_user_has_perm:request %}
+  $("#button_dp_confirm_settle_accounts").click(function() {
+    let checked_dp = get_checked_dp_all();
+    if (! checked_dp) return;
+
+    for (let jq_obj of checked_dp.toArray()) {
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ DP_STATUSES.Paid.value }}") {
+        mdtoast_error('只能结算"已支付"的回款单。');
+        return;
+      }
+    }
+    confirm_dialog(
+      "确认结算",
+      "<p>请确保确实收到转账之后再进行确认结算操作，</p>" +
+      "<p>一旦确认，转账将统计入财务系统，</p>" +
+      "<p>此操作无法撤销！</p>",
+      {
+        okClick: function() {
+          let checked_dp_ids = checked_dp.map(function(jq_obj) {
+            return jq_obj.find("[data-dp_id]").attr("data-dp_id");
+          });
+          this.hide();
+          $.post(
+            "{% url 'wuliu:api_settle_accounts_department_payment' %}",
+            {
+              "dp_ids": checked_dp_ids.join(","),
+            },
+            function(data, status) {
+              if (data.code === 200) {
+                checked_dp.each(function(jq_obj) {
+                  jq_obj.find("[data-status_id]").attr("data-status_id", "{{ DP_STATUSES.Settled }}").html("{{ DP_STATUSES.Settled.label }}");
+                  jq_obj.find('[data-key="dp_settle_accounts_time"]').attr("data-order", data.data.dp_settle_accounts_time_timestamp).html(data.data.dp_settle_accounts_time);
+                });
+                mdtoast_success("提交成功。");
+              } else {
+                alert_dialog("提交失败："+data.data.message);
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+{% endif %}
+});
+// </script>

@@ -1,0 +1,30 @@
+<tr>
+    <td></td>
+  {% if have_check_box %}
+    <td data-wb_id="{{ waybill.id }}">
+        <div class="custom-control custom-checkbox ml-2">
+            <input type="checkbox" class="custom-control-input" id="{{ table_id }}_waybill_{{ waybill.id }}">
+            <label class="custom-control-label" for="{{ table_id }}_waybill_{{ waybill.id }}"></label>
+        </div>
+    </td>
+  {% endif %}
+    <td data-order="{{ waybill.id }}"><a href="{% url 'wuliu:detail_waybill' waybill.id %}">{{ waybill.get_full_id }}</a></td>
+    <td data-key="wb_status" data-order="{{ waybill.status }}" data-status_id="{{ waybill.status }}">{{ waybill.get_status_display }}</td>
+    <td data-key="wb_create_time" data-order="{{ waybill.create_time.timestamp }}">{{ waybill.create_time | date:"Y-m-d H:i:s" }}</td>
+    <td data-key="wb_arrival_time" data-order="{{ waybill.arrival_time.timestamp }}">{{ waybill.arrival_time | date:"Y-m-d H:i:s" }}</td>
+    <td data-key="wb_sign_for_time" data-order="{{ waybill.sign_for_time.timestamp }}">{{ waybill.sign_for_time | date:"Y-m-d H:i:s" }}</td>
+    <td data-key="wb_src_department" data-src_dept_id="{{ waybill.src_department.id }}">{{ waybill.src_department.name }}</td>
+    <td data-key="wb_dst_department" data-dst_dept_id="{{ waybill.dst_department.id }}">{{ waybill.dst_department.name }}</td>
+    <td data-key="wb_src_customer_name">{{ waybill.src_customer_name }}</td>
+    <td data-key="wb_dst_customer_name">{{ waybill.src_customer_phone }}</td>
+    <td data-key="wb_dst_customer_name">{{ waybill.dst_customer_name }}</td>
+    <td data-key="wb_dst_customer_phone">{{ waybill.dst_customer_phone }}</td>
+    <td data-key="wb_cargo_name">{{ waybill.cargo_name }}</td>
+    <td data-key="wb_cargo_num">{{ waybill.cargo_num }}</td>
+    <td data-key="wb_cargo_volume">{{ waybill.cargo_volume | floatformat:2 }}</td>
+    <td data-key="wb_cargo_weight">{{ waybill.cargo_weight | floatformat }}</td>
+    <td data-key="wb_cargo_price">{{ waybill.cargo_price }}</td>
+    <td data-key="wb_cargo_price_status" data-order="{{ waybill.cargo_price_status }}">{{ waybill.get_cargo_price_status_display }}</td>
+    <td data-key="wb_fee">{{ waybill.fee }}</td>
+    <td data-key="wb_fee_type" data-fee_type_id="{{ waybill.fee_type }}">{{ waybill.get_fee_type_display }}</td>
+</tr>

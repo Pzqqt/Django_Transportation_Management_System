@@ -1,0 +1,16 @@
+{% extends "wuliu/finance/cargo_price_payment/_layout_edit_cargo_price_payment.html" %}
+{% block title %}代收款转账单详情{% endblock %}
+{% block header_title %}代收款转账单详情{% endblock %}
+{% block head_append_js %}{% endblock %}
+{% block form_action %}{% endblock %}
+              {% block action_bar %}
+                <blockquote>
+                    <h1>应转账金额</h1>
+                    <p>
+                        代收货款总计：<code>{{ cpp_dic.total_cargo_price }}</code>元；
+                        扣付运费总计：<code>{{ cpp_dic.total_deduction_fee }}</code>元；
+                        扣付手续费总计：<code>{{ cpp_dic.total_cargo_handling_fee }}</code>元；
+                        合计：<code>{{ cpp_dic.final_fee }}</code>元。
+                    </p>
+                </blockquote>
+              {% endblock %}

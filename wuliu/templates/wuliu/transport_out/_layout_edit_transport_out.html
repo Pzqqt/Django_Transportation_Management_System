@@ -1,0 +1,57 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block head_append_js %}
+    <script src="{% url 'wuliu:edit_transport_out_js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form class="form col-12 mb-2" id="form-edit_transport_out" method="post">
+                <fieldset>
+                  {% if not detail_view %}
+                    {% csrf_token %}
+                  {% endif %}
+                    <legend class="row">基本信息</legend>
+                  {% if form.id_ %}
+                    <div class="row">
+                        {% show_form_input_field form.id_ "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.id "" "" %}
+                      {% if detail_view %}
+                        {% show_form_input_field form.status "" "col-6 col-md-2" %}
+                        {% show_form_input_field form.create_time %}
+                        {% show_form_input_field form.start_time %}
+                        {% show_form_input_field form.end_time %}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                    <div class="row">
+                        {% show_form_input_field form.src_department "发车部门" "col-6 col-md-3" %}
+                        {% show_form_input_field form.dst_department "到达部门" "col-6 col-md-3" %}
+                    </div>
+                    <legend class="row">车次信息</legend>
+                    <div class="row">
+                        {% show_form_input_field form.truck "选择车辆" "col-12 col-md-3" %}
+                        {% show_form_input_field form.driver_name "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.driver_phone "" "col-6 col-md-3" %}
+                    </div>
+                    {# 此处不应该渲染该表单字段 #}
+                    {# form.waybills #}
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% block action_bar %}
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'wuliu:search_waybills_to_transport_out' %}">
+                    <i class="ri-c ri-add-fill"><span>配载运单</span></i>
+                </a>
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_remove">
+                    <i class="ri-c ri-delete-bin-line"><span>删除</span></i>
+                </button>
+              {% endblock %}
+            </div>
+            <div class="col-12">
+              {% block waybill_table %}
+                {% show_waybill_table waybills_info_list "ready_transport_out" %}
+              {% endblock %}
+            </div>
+            <div class="col-12">
+              {% block action_buttons %}{% endblock %}
+            </div>
+          {% endblock %}

@@ -1,0 +1,8 @@
+{% extends "wuliu/transport_out/_layout_edit_transport_out.html" %}
+{% load wuliu_extras %}
+{% block title %}车次详情{% endblock %}
+{% block header_title %}车次详情{% endblock %}
+              {% block action_bar %}{% endblock %}
+              {% block waybill_table %}
+                {% show_waybill_table waybills_info_list "ready_transport_out" False %}
+              {% endblock %}

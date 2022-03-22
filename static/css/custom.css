@@ -1,0 +1,88 @@
+/* 单行代码 */
+code {
+  color: #2d85ca;
+  padding: 2px 4px;
+  font-size: 90%;
+  background-color: #f0f3f3;
+  border-radius: 4px;
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+/* 必填表单项label字符串前加红色星号 */
+.label-required:before {
+  content: "* ";
+  color: #eb4434;
+}
+/* 限制textarea的最大高度, 并禁止调整宽度 */
+textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+/* 运单信息中的总价 */
+.total-fee:before {
+  content: "￥ ";
+}
+.total-fee {
+  font-size: 16px;
+  color: #eb4434;
+  font-weight: 700;
+}
+/* 阻止表格内容折行 */
+.table th, .table td {
+  white-space: nowrap;
+}
+/* 适当调整form label上下填充 */
+form label {
+  margin-top: .25rem;
+  margin-bottom: .25rem;
+}
+/* 适当降低legend字体大小, 并调整上下边距 */
+legend {
+  margin-top: .15rem;
+  margin-bottom: .25rem;
+  font-size: 1.25rem;
+}
+/* 子元素对齐 */
+.child-flex {
+  display: flex;
+}
+.child-flex-xc {
+  justify-content: center;
+}
+.child-flex-xr {
+  justify-content: right;
+}
+.child-flex-yc {
+  align-items: center;
+}
+/* 对RemixIcon的一些自定义调整 */
+.ri-c {
+  line-height: 1;  /* 固定行高 */
+  vertical-align: text-bottom;  /* 向底端对齐 */
+  font-size: 125%;  /* 适当增大 (5/4) */
+}
+.ri-c span {
+  font-size: 80%;  /* 缩小到与icon大小相同 (4/5) */
+  vertical-align: text-top;
+  padding-left: .25rem;
+}
+/* 用户头像 */
+.nav-user-icon {
+  margin-right: .25rem;
+  width: 2.125rem;
+}
+/* 对用户权限树元素的一些排版调整 */
+.tree-pl {
+  padding-left: 2.75rem;
+}
+.tree-icon-pl {
+  padding-right: 1.75rem;
+}
+.permission-padding-fix {
+  padding-left: 1.15rem
+}
+.custom-checkbox-label-fix::before {
+  top: .125rem;
+}
+.custom-checkbox-label-fix::after {
+  top: .125rem;
+}

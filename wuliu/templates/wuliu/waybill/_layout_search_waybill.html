@@ -1,0 +1,94 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+          {% block content %}
+            <form action="{% block search_form_action %}{% endblock %}" id="form-search_waybill" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                {% show_form_input_field form.waybill_id "" "col-12 col-md-3" %}
+                                {% show_form_input_field form.waybill_status "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.waybill_fee_type "" "col-6 col-md-3" %}
+                              {% if form.cargo_price_status %}
+                                {% show_form_input_field form.cargo_price_status "" "col-12 col-md-3" %}
+                              {% endif %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.create_date_start "" "col-8 col-md" %}
+                                {% show_form_input_field form.create_time_start "-" "col-4 col-md-2" %}
+                                {% show_form_input_field form.create_date_end "" "col-8 col-md" %}
+                                {% show_form_input_field form.create_time_end "-" "col-4 col-md-2" %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.arrival_date_start "" "col-6 col-md" %}
+                                {% show_form_input_field form.arrival_date_end "" "col-6 col-md" %}
+                                {% show_form_input_field form.sign_for_date_start "" "col-6 col-md" %}
+                                {% show_form_input_field form.sign_for_date_end "" "col-6 col-md" %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.src_customer_name "" "col-4 col-md-3" %}
+                                {% show_form_input_field form.src_customer_phone "" "col-8 col-md-3" %}
+                                {% show_form_input_field_with_append_select form.src_department form.src_department_group "" "col-12 col-md-6" %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.dst_customer_name "" "col-4 col-md-3" %}
+                                {% show_form_input_field form.dst_customer_phone "" "col-8 col-md-3" %}
+                                {% show_form_input_field_with_append_select form.dst_department form.dst_department_group "" "col-12 col-md-6" %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% block action_bar %}
+              {% endblock %}
+            </div>
+            <div class="col-12">
+              {% block waybill_table %}
+                {% show_waybill_table waybill_list "wb_search_result" %}
+              {% endblock %}
+            </div>
+            <script>
+$(document).ready(function() {
+  function toggle_input_disabled() {
+    if ($('#form-search_waybill [name="waybill_status"]').val() == "{{ WB_STATUSES.Arrived }}") {
+      $('#form-search_waybill [name="arrival_date_start"]').removeAttr("disabled");
+      $('#form-search_waybill [name="arrival_date_end"]').removeAttr("disabled");
+      $('#form-search_waybill [name="sign_for_date_start"]').attr("disabled", true);
+      $('#form-search_waybill [name="sign_for_date_end"]').attr("disabled", true);
+    } else if ($('#form-search_waybill [name="waybill_status"]').val() == "{{ WB_STATUSES.SignedFor }}") {
+      $('#form-search_waybill [name="arrival_date_start"]').attr("disabled", true);
+      $('#form-search_waybill [name="arrival_date_end"]').attr("disabled", true);
+      $('#form-search_waybill [name="sign_for_date_start"]').removeAttr("disabled");
+      $('#form-search_waybill [name="sign_for_date_end"]').removeAttr("disabled");
+    } else {
+      $('#form-search_waybill [name="arrival_date_start"]').removeAttr("disabled");
+      $('#form-search_waybill [name="arrival_date_end"]').removeAttr("disabled");
+      $('#form-search_waybill [name="sign_for_date_start"]').removeAttr("disabled");
+      $('#form-search_waybill [name="sign_for_date_end"]').removeAttr("disabled");
+    }
+  }
+  toggle_input_disabled();
+  $('#form-search_waybill [name="waybill_status"]').change(toggle_input_disabled);
+  [
+    ["create_date_start", "create_date_end"],
+    ["arrival_date_start", "arrival_date_end"],
+    ["sign_for_date_start", "sign_for_date_end"],
+  ].forEach(function(child) {
+    document.querySelector('[name="' + child[1] + '"]')._duDatepicker.minDate = $('#form-search_waybill [name="' + child[0] + '"]').val();
+    $('#form-search_waybill [name="' + child[1] + '"]').on("datechanged", function() {
+      document.querySelector('[name="' + child[0] + '"]')._duDatepicker.maxDate = $(this).val();
+    });
+    $('#form-search_waybill [name="' + child[0] + '"]').on("datechanged", function() {
+      document.querySelector('[name="' + child[1] + '"]')._duDatepicker.minDate = $(this).val();
+    });
+  });
+});
+            </script>
+          {% endblock %}

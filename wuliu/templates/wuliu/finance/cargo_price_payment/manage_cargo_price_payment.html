@@ -1,0 +1,66 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}代收款转账单{% endblock %}
+{% block header_title %}代收款转账单{% endblock %}
+{% block header_subtitle %}创建 -&gt; 提交 -&gt; 财务部审核 -&gt; 财务部支付并结算{% endblock %}
+{% block head_append_js %}
+    <script src="{% url 'wuliu:manage_cargo_price_payment_js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:manage_cargo_price_payment' %}" id="form-search_cargo_price_payment" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                {% show_form_input_field form.create_user "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.create_department "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.payee_name "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.status "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.create_date_start "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.create_date_end "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.settle_accounts_date_start "" "col-6 col-md-3" %}
+                                {% show_form_input_field form.settle_accounts_date_end "" "col-6 col-md-3" %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% if "manage_cargo_price_payment__add_edit_delete_submit"|is_logged_user_has_perm:request %}
+                <a href="{% url 'wuliu:add_cargo_price_payment' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="ri-c ri-add-fill"><span>新增</span></i>
+                </a>
+                <button class="btn btn-outline-primary btn-sm" id="button_cpp_edit">
+                    <i class="ri-c ri-file-edit-line"><span>修改</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_cpp_delete">
+                    <i class="ri-c ri-delete-bin-line"><span>删除</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_cpp_confirm_submit">
+                    <i class="ri-c ri-share-forward-line"><span>确认提交</span></i>
+                </button>
+              {% endif %}
+              {% if "manage_cargo_price_payment__review_reject"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_cpp_confirm_review">
+                    <i class="ri-c ri-eye-line"><span>确认审核</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_cpp_confirm_reject">
+                    <i class="ri-c ri-emotion-unhappy-line"><span>驳回</span></i>
+                </button>
+              {% endif %}
+              {% if "manage_cargo_price_payment__pay"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_cpp_confirm_pay">
+                    <i class="ri-c ri-money-cny-circle-line"><span>确认支付</span></i>
+                </button>
+              {% endif %}
+            </div>
+            <div class="col-12">
+                {% show_cargo_price_payment_table cargo_price_payment_list "cargo_price_payment" %}
+            </div>
+          {% endblock %}

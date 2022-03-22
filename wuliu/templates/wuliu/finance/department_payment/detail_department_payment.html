@@ -1,0 +1,40 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}回款单详情{% endblock %}
+{% block header_title %}回款单详情{% endblock %}
+          {% block content %}
+            <form class="form col-12">
+                <fieldset>
+                    <legend>基本信息</legend>
+                    <div class="row">
+                        {% show_form_input_field form.id_ "" "col-12 col-md" %}
+                        {% show_form_input_field form.create_time "" "col-6 col-md" %}
+                        {% show_form_input_field form.payment_date "" "col-6 col-md" %}
+                        {% show_form_input_field form.settle_accounts_time "" "col-6 col-md" %}
+                        {% show_form_input_field form.status "" "col-6 col-md" %}
+                    </div>
+                    <div class="row mb-2">
+                        {% show_form_input_field form.src_department "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.dst_department "" "col-6 col-md-3" %}
+                    </div>
+                    <div class="row mb-2">
+                        {% show_form_input_field form.src_remark "" "col-12 col-md-6" %}
+                        {% show_form_input_field form.dst_remark "" "col-12 col-md-6" %}
+                    </div>
+                    <hr>
+                    <legend>费用列表</legend>
+                </fieldset>
+            </form>
+            <blockquote class="col-12">
+                <h1>应回款金额</h1>
+                <p>
+                    现付运费收入：<code>{{ dp_dic.total_fee_now }}</code>元；
+                    提付运费收入：<code>{{ dp_dic.total_fee_sign_for }}</code>元；
+                    代收货款收入：<code>{{ dp_dic.total_cargo_price }}</code>元；
+                    合计：<code>{{ dp_dic.final_total_fee }}</code>元。
+                </p>
+            </blockquote>
+            <div class="col-12">
+                {% show_waybill_table waybills_info_list "department_payment_waybill" False True dp_dic.src_department.id %}
+            </div>
+          {% endblock %}

@@ -1,0 +1,65 @@
+{% load wuliu_extras %}
+<div class="card card-primary card-outline shadow"><div class="card-body">
+    <table id="{{ table_id }}" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+              {% if have_check_box %}
+                <th>
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_checkbox_all">
+                        <label class="custom-control-label" for="{{ table_id }}_checkbox_all"></label>
+                    </div>
+                </th>
+              {% endif %}
+                <th>运单号码</th>
+                <th>运单状态</th>
+                <th>开票日期</th>
+                <th>到货日期</th>
+                <th>提货日期</th>
+                <th>发货部门</th>
+                <th>到达部门</th>
+                <th>发货人</th>
+                <th>发货人电话</th>
+                <th>收货人</th>
+                <th>收货人电话</th>
+                <th>货物名称</th>
+                <th>件数</th>
+                <th>体积</th>
+                <th>重量</th>
+                <th>代收货款</th>
+                <th>代收货款状态</th>
+                <th>运费</th>
+                <th>结算方式</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for waybill in waybills_info_list %}
+            {% show_waybill_table_row waybill table_id have_check_box %}
+          {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% if have_check_box %}
+  {% js_init_datatable table_id True 4 %}
+{% else %}
+  {% js_init_datatable table_id False 3 %}
+{% endif %}
+{% if high_light_fee %}
+<script>
+  {{ table_id }}_table.rows().nodes().each(function(row) {
+    let td_src_dept = $(row).find("[data-src_dept_id]");
+    let td_dst_dept = $(row).find("[data-dst_dept_id]");
+    if (td_src_dept.attr("data-src_dept_id") == "{{ high_light_dept_id }}") {
+      td_src_dept.addClass("table-info");
+      $(row).find("td[data-key='wb_fee']").addClass("table-info");
+    } else if (td_dst_dept.attr("data-dst_dept_id") == "{{ high_light_dept_id }}") {
+      td_dst_dept.addClass("table-info");
+      $(row).find("td[data-key='wb_cargo_price']").addClass("table-info");
+      if ($(row).find("[data-fee_type_id]").attr("data-fee_type_id") == "{{ WB_FEE_TYPES.SignFor }}") {
+        $(row).find("td[data-key='wb_fee']").addClass("table-info");
+      }
+    }
+  });
+</script>
+{% endif %}

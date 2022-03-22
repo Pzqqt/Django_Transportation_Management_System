@@ -1,0 +1,31 @@
+{% extends "wuliu/waybill/_layout_search_waybill.html" %}
+{% load wuliu_extras %}
+{% block title %}运单管理{% endblock %}
+{% block header_title %}运单管理{% endblock %}
+{% block header_subtitle %}查询、修改、作废或补打运单{% endblock %}
+{% block head_append_js %}
+  <script src="{% url 'wuliu:manage_waybill_js' %}"></script>
+{% endblock %}
+              {% block search_form_action %}{% url 'wuliu:manage_waybill' %}{% endblock %}
+              {% block action_bar %}
+                <form id="form-create_transport_out" action="{% url 'wuliu:add_waybills_to_transport_out' %}" method="post" hidden>
+                    {% csrf_token %}
+                    <input type="text" name="wb_add_list">
+                </form>
+              {% if "manage_waybill__edit_delete_print"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_edit">
+                    <i class="ri-c ri-file-edit-line"><span>修改</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_drop">
+                    <i class="ri-c ri-delete-bin-line"><span>删除</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_print">
+                    <i class="ri-c ri-printer-line"><span>补打</span></i>
+                </button>
+              {% endif %}
+              {% if "manage_transport_out__add_edit_delete_start"|is_logged_user_has_perm:request %}
+                <button class="btn btn-outline-primary btn-sm" id="button_wb_create_transport_out">
+                    <i class="ri-c ri-truck-line"><span>添加并创建车次</span></i>
+                </button>
+              {% endif %}
+              {% endblock %}

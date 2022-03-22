@@ -1,0 +1,94 @@
+{% extends "wuliu/_layout.html" %}
+{% block title %}确认退货{% endblock %}
+{% block header_title %}确认退货{% endblock %}
+          {% block content %}
+            <div class="accordion col-12">
+                <div class="card bg-light shadow">
+                    <div class="card-header">
+                        <h3 class="card-title">运单编号：{{ waybill.get_full_id }}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                发货人：<code>{{ waybill.src_customer_name }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                发货人电话：<code>{{ waybill.src_customer_phone }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                收货人：<code>{{ waybill.dst_customer_name }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                收货人电话：<code>{{ waybill.dst_customer_phone }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                发货部门：<code>{{ waybill.src_department.name }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                货物名称：<code>{{ waybill.cargo_name }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                代收货款：<code>{{ waybill.cargo_price }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                件数：<code>{{ waybill.cargo_num }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                总体积：<code>{{ waybill.cargo_volume | floatformat:2 }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                总重量：<code>{{ waybill.cargo_weight | floatformat }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                运费：<code>{{ waybill.fee }}</code>
+                            </div>
+                            <div class="col-md-3">
+                                结算方式：<code>{{ waybill.fee_type }}</code>
+                            </div>
+                            <div class="col-md-6">
+                                客户备注：<code>{{ waybill.customer_remark | default:"无" }}</code>
+                            </div>
+                            <div class="col-md-6">
+                                公司备注：<code>{{ waybill.company_remark | default:"无" }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <form id="form-confirm_return_waybill" action="{% url 'wuliu:confirm_return_waybill' %}" class="form col-12" method="post">
+                {% csrf_token %}
+                <input type="number" name="return_waybill_id" value="{{ waybill.id }}" hidden required/>
+                <div class="form-group row">
+                    <label class="col-md-2 col-form-label label-required">请输入退货原因：</label>
+                    <div class="col-md-8">
+                        <input class="form-control" type="text" name="return_reason" required/>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary" id="confirm_return_waybill_submit">确认退货</button>
+                    </div>
+                </div>
+            </form>
+            <script>
+$(document).ready(function() {
+  $("#confirm_return_waybill_submit").click(function(e) {
+    e.preventDefault();
+    if (! $('#form-confirm_return_waybill [name="return_waybill_id"]').val()) {
+      mdtoast_error("表单异常！请刷新页面后重新提交！");
+      return;
+    }
+    if (! $('#form-confirm_return_waybill [name="return_reason"]').val().trim()) {
+      mdtoast_error("请仔细填写退货原因！");
+      return;
+    }
+    confirm_dialog(
+      "确认退货", "退货操作无法撤销！你确定要退货吗？", {
+        okClick: function() {
+          this.hide();
+          $('#form-confirm_return_waybill').submit();
+        }
+      }
+    );
+  });
+});
+            </script>
+          {% endblock %}

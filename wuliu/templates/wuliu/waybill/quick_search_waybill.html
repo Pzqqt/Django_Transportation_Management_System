@@ -1,0 +1,9 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}查询结果{% endblock %}
+{% block header_title %}查询结果{% endblock %}
+              {% block content %}
+                {% show_waybill_table waybill_list "quick_search_waybill_result" False %}
+                <!-- 移除最外层的card边框 -->
+                <script>$(function() {$(".container-fluid > .card").removeClass("card").removeClass("p-3");});</script>
+              {% endblock %}

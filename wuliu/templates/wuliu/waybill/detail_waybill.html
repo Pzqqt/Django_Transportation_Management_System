@@ -1,0 +1,114 @@
+{% extends "wuliu/waybill/_layout_edit_waybill.html" %}
+{% block title %}运单详情{% endblock %}
+{% block header_title %}运单详情{% endblock %}
+              {% block content_header %}
+                <div class="col"><div class="card card-primary card-tabs">
+                  {% if wb.status == WB_STATUSES.SignedFor %}
+                    <div class="ribbon-wrapper ribbon-xl">
+                        <div class="ribbon bg-success text-xl">已签收</div>
+                    </div>
+                  {% elif wb.status == WB_STATUSES.Returned %}
+                    <div class="ribbon-wrapper ribbon-xl">
+                        <div class="ribbon bg-warning text-xl">已退货</div>
+                    </div>
+                  {% elif wb.status == WB_STATUSES.Dropped %}
+                    <div class="ribbon-wrapper ribbon-xl">
+                        <div class="ribbon bg-danger text-xl">已作废</div>
+                    </div>
+                  {% endif %}
+                    <div class="card-header p-0 pt-1">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tabs-waybill-info-tab" data-toggle="pill" href="#tabs-waybill-info" role="tab" aria-controls="tabs-waybill-info" aria-selected="true">运单信息</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tabs-waybill-routing-tab" data-toggle="pill" href="#tabs-waybill-routing" role="tab" aria-controls="tabs-waybill-routing" aria-selected="false">运单路由</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tabs-waybill-cargo-price-tab" data-toggle="pill" href="#tabs-waybill-cargo-price" role="tab" aria-controls="tabs-waybill-cargo-price" aria-selected="false">代收款状态</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="custom-tabs-one-tabContent">
+                            <div class="tab-pane fade show active" id="tabs-waybill-info" role="tabpanel" aria-labelledby="tabs-waybill-info-tab">
+              {% endblock %}
+              {# 此处为运单详情 #}
+              {% block content_footer %}
+                            </div>
+                            <div class="tab-pane fade" id="tabs-waybill-routing" role="tabpanel" aria-labelledby="tabs-waybill-routing-tab">
+                                <div class="table-responsive" style="border: 1px solid #bbb; height: 400px;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr class="thead-light">
+                                                <th>#</th>
+                                                <th>操作时间</th>
+                                                <th>操作类型</th>
+                                                <th>操作部门</th>
+                                                <th>操作用户</th>
+                                                <th>详细内容</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                          {% for rt in wb_routing %}
+                                            <tr>
+                                                <th>{{ forloop.counter }}</th>
+                                                <td>{{ rt.time | date:"Y-m-d H:i:s" }}</td>
+                                                <td>{{ rt.get_operation_type_display }}</td>
+                                                <td>{{ rt.operation_dept.name }}</td>
+                                                <td>{{ rt.operation_user.name }}</td>
+                                                <td>{{ rt.gen_print_operation_info }}</td>
+                                            </tr>
+                                          {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="tabs-waybill-cargo-price" role="tabpanel" aria-labelledby="tabs-waybill-cargo-price-tab">
+                              {% if wb.cargo_price > 0 %}
+                                <blockquote>
+                                    <h1>代收款信息</h1>
+                                    <p>
+                                        代收货款：<code>{{ wb.cargo_price }}</code>元；
+                                        扣付运费：<code>{% if wb.fee_type == WB_FEE_TYPES.Deduction %}{{ wb.fee }}{% else %}0{% endif %}</code>元；
+                                        扣除手续费：<code>{{ wb.cargo_handling_fee }}</code>元；
+                                        实际领款：<code>{{ wb_final_cpp_fee }}</code>元。
+                                    </p>
+                                </blockquote>
+                                <blockquote>
+                                    <h1>代收款当前状态：{{ wb.get_cargo_price_status_display }}</h1>
+                                    <p>
+                                    {% with wb_cpp=wb.cargo_price_payment %}
+                                      {% if wb_cpp %}
+                                          <a href="{% url 'wuliu:detail_cargo_price_payment' wb_cpp.id %}">代收款转账单</a>
+                                        {% if wb_cpp.status == CPP_STATUSES.Created %}已由{{ wb_cpp.create_user.name }}创建，尚未提交。
+                                        {% elif wb_cpp.status == CPP_STATUSES.Submitted %}已由{{ wb_cpp.create_user.name }}创建并提交财务部，等待审核。
+                                        {% elif wb_cpp.status == CPP_STATUSES.Reviewed %}已由财务部审核完毕。
+                                        {% elif wb_cpp.status == CPP_STATUSES.Paid %}已由财务部完成支付，结算时间：{{ wb_cpp.settle_accounts_time | date:"Y年n月j日 H:i:s" }}。
+                                        {% elif wb_cpp.status == CPP_STATUSES.Rejected %}已被财务部驳回。
+                                        {% endif %}
+                                      {% else %}
+                                        {% if wb.status == WB_STATUSES.SignedFor %}尚未创建代收款转账单。
+                                        {% else %}运单没有被签收，不能创建代收款转账单。
+                                        {% endif %}
+                                      {% endif %}
+                                    {% endwith %}
+                                    </p>
+                                </blockquote>
+                              {% else %}
+                                <blockquote>
+                                    <h1>代收款当前状态：{{ wb.get_cargo_price_status_display }}</h1>
+                                    <p>该运单没有代收货款。</p>
+                                </blockquote>
+                              {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div></div>
+                <script>
+$(function() {
+    $(".container-fluid > .card").removeClass("card").removeClass("p-3");
+    $(".ribbon-wrapper").click(function(){$(this).slideUp()});
+});
+                </script>
+              {% endblock %}

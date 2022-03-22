@@ -1,0 +1,96 @@
+// <script>
+$(document).ready(function() {
+  function gen_total_info() {
+    let total_num = 0, total_fee = 0, total_cargo_price = 0, final_fee = 0;
+    $(".card[data-waybill_id]").each(function() {
+      total_num += 1;
+      total_fee += parseInt($(this).find("[data-fee]").html());
+      total_cargo_price += parseInt($(this).find("[data-cargo_price]").html());
+      final_fee += parseInt($(this).find("[data-final_fee]").html());
+    });
+    $("#total_num").val(total_num);
+    $("#total_fee").val(total_fee);
+    $("#total_cargo_price").val(total_cargo_price);
+    $("#final_fee").val(final_fee);
+  }
+  gen_total_info();
+  $(".card[data-waybill_id] .card-header").click(function() {
+    $(this).parent().find(".card-body").slideToggle();
+  });
+  $(".waybill-info-remove").click(function() {
+    $(this).parents(".card[data-waybill_id]").slideUp(300, function() {
+      $(this).remove();
+      gen_total_info();
+    });
+  });
+  $('#form-add_sign_for_waybill').submit(function(e) {
+    e.preventDefault();
+    let add_waybill_id = $('#form-add_sign_for_waybill [name="add_waybill_id"]').val().trim();
+    if (! add_waybill_id) return;
+    $.post(
+      "{% url 'wuliu:api_add_waybill_when_confirm_sign_for' %}",
+      {
+        "add_waybill_id": add_waybill_id,
+      },
+      function(data, status) {
+        if (data.code === 200) {
+          let added_waybill_ids = [];
+          $(".card[data-waybill_id]").each(function() {
+            added_waybill_ids.push(parseInt($(this).attr("data-waybill_id")));
+          });
+          // 重复添加
+          if (added_waybill_ids.indexOf(data.data.waybill_id) !== -1) {
+            $('#form-add_sign_for_waybill [name="add_waybill_id"]').val("");
+            return;
+          }
+          $('.accordion').append(data.data.html);
+          $('.card[data-waybill_id=' + add_waybill_id + '] .card-header').click(function() {
+            $(this).parent().find(".card-body").slideToggle();
+          });
+          $('.card[data-waybill_id=' + add_waybill_id + '] .waybill-info-remove').click(function() {
+            $(this).parents(".card[data-waybill_id]").slideUp(300, function() {
+              $(this).remove();
+              gen_total_info();
+            });
+          });
+          gen_total_info();
+        } else {
+          mdtoast_error("添加失败！" + data.data.message);
+        }
+        $('#form-add_sign_for_waybill [name="add_waybill_id"]').val("");
+      }
+    )
+  });
+  $("#button_sign_for_submit").click(function() {
+    let added_waybill_ids = [];
+    $(".card[data-waybill_id]").each(function() {
+      added_waybill_ids.push(parseInt($(this).attr("data-waybill_id")));
+    });
+    if (! added_waybill_ids.length) {
+      mdtoast_error("你没有选择任何运单。");
+      return;
+    }
+    let sign_for_name = $('#form-confirm_sign_for [name="sign_for_name"]').val().trim();
+    let sign_for_credential_num = $('#form-confirm_sign_for [name="sign_for_credential_num"]').val().trim();
+    if (! sign_for_name || ! sign_for_credential_num) {
+      mdtoast_error("请填写签收人信息。");
+      return;
+    }
+    $.post(
+      "{% url 'wuliu:api_confirm_sign_for' %}",
+      {
+        "sign_for_name": sign_for_name,
+        "sign_for_credential_num": sign_for_credential_num,
+        "sign_for_waybill_ids": added_waybill_ids.join(","),
+      },
+      function(data, status) {
+        if (data.code === 200) {
+          window.location.replace("{% url 'wuliu:manage_sign_for' %}");
+        } else {
+          alert_dialog("提交失败："+data.data.message);
+        }
+      }
+    )
+  });
+});
+// </script>

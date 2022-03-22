@@ -1,0 +1,52 @@
+{% load wuliu_extras %}
+<div class="card card-primary card-outline shadow"><div class="card-body">
+    <table id="{{ table_id }}" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>运单号码</th>
+                <th>开票日期</th>
+                <th>到货日期</th>
+                <th>滞留天数</th>
+                <th>发货部门</th>
+                <th>到达部门</th>
+                <th>发货人</th>
+                <th>发货人电话</th>
+                <th>收货人</th>
+                <th>收货人电话</th>
+                <th>货物名称</th>
+                <th>件数</th>
+                <th>体积</th>
+                <th>重量</th>
+                <th>代收货款</th>
+                <th>运费</th>
+                <th>结算方式</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for waybill in waybills_info_list %}
+            <tr>
+                <td></td>
+                <td data-order="{{ waybill.id }}"><a href="{% url 'wuliu:detail_waybill' waybill.id %}">{{ waybill.get_full_id }}</a></td>
+                <td data-key="wb_create_time" data-order="{{ waybill.create_time.timestamp }}">{{ waybill.create_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="wb_arrival_time" data-order="{{ waybill.arrival_time.timestamp }}">{{ waybill.arrival_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="wb_stay_days" data-order="{{ waybill.stay_days }}">{{ waybill.stay_days }}</td>
+                <td data-key="wb_src_department" data-src_dept_id="{{ waybill.src_department.id }}">{{ waybill.src_department.name }}</td>
+                <td data-key="wb_dst_department" data-dst_dept_id="{{ waybill.dst_department.id }}">{{ waybill.dst_department.name }}</td>
+                <td data-key="wb_src_customer_name">{{ waybill.src_customer_name }}</td>
+                <td data-key="wb_dst_customer_name">{{ waybill.src_customer_phone }}</td>
+                <td data-key="wb_dst_customer_name">{{ waybill.dst_customer_name }}</td>
+                <td data-key="wb_dst_customer_phone">{{ waybill.dst_customer_phone }}</td>
+                <td data-key="wb_cargo_name">{{ waybill.cargo_name }}</td>
+                <td data-key="wb_cargo_num">{{ waybill.cargo_num }}</td>
+                <td data-key="wb_cargo_volume">{{ waybill.cargo_volume | floatformat:2 }}</td>
+                <td data-key="wb_cargo_weight">{{ waybill.cargo_weight | floatformat }}</td>
+                <td data-key="wb_cargo_price">{{ waybill.cargo_price }}</td>
+                <td data-key="wb_fee">{{ waybill.fee }}</td>
+                <td data-key="wb_fee_type" data-fee_type_id="{{ waybill.fee_type }}">{{ waybill.get_fee_type_display }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% js_init_datatable table_id False %}

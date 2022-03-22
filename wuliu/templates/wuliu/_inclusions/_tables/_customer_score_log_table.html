@@ -1,0 +1,59 @@
+{% load wuliu_extras %}
+{% load bool from utils_extras %}
+<div class="card card-primary card-outline shadow"><div class="card-body">
+    <table id="{{ table_id }}" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>会员姓名</th>
+                <th>会员电话</th>
+                <th>变动方式</th>
+                <th>变动积分</th>
+                <th>变动时间</th>
+                <th>操作人</th>
+                <th>变更原因</th>
+                <th>关联运单</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for customer_score_log in customer_score_logs %}
+            <tr>
+                <td></td>
+                <td>
+                    <a href="javascript: show_customer_score({{ customer_score_log.customer.id }})">{{ customer_score_log.customer.name }}</a>
+                </td>
+                <td>{{ customer_score_log.customer.phone }}</td>
+                <td data-inc_or_dec="{{ customer_score_log.inc_or_dec | bool }}">{% if customer_score_log.inc_or_dec %}增加{% else %}扣减{% endif %}</td>
+                <td data-order="{{ customer_score_log.score }}">{{ customer_score_log.score }}</td>
+                <td data-order="{{ customer_score_log.create_time.timestamp }}">{{ customer_score_log.create_time | date:"Y-m-d H:i:s" }}</td>
+                <td>{% if customer_score_log.user %}{{ customer_score_log.user.name }}{% else %}<span style="font-style: italic">系统自动生成</span>{% endif %}</td>
+                <td>{{ customer_score_log.remark }}</td>
+                <td>
+                  {% if customer_score_log.waybill %}
+                    <a href="{% url 'wuliu:detail_waybill' customer_score_log.waybill.id %}">{{ customer_score_log.waybill.get_full_id }}</a>
+                  {% endif %}
+                </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% js_init_datatable table_id False %}
+<script>
+  function show_customer_score(customer_id) {
+    $.ajax({
+      url: "{% url 'wuliu:api_get_customer_info' %}?customer_id=" + customer_id,
+      type: "GET",
+      async: false,
+      dataType: "json",
+      success: function(data, status) {
+        new duDialog(
+          "客户：" + data.data.customer_info.name,
+          "当前积分：" + data.data.customer_info.score,
+          {okText: "确认"}
+        );
+      },
+    });
+  }
+</script>
+

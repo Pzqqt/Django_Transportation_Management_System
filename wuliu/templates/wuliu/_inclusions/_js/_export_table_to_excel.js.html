@@ -1,0 +1,53 @@
+<script>
+let {{ table_id }}_latest_export_date;
+$(document).ready(function() {
+  $('{{ button_css_selector }}').click(function() {
+    if ({{ table_id }}_latest_export_date !== undefined) {
+      let time_out = parseInt((new Date() - {{ table_id }}_latest_export_date) / 1000)
+      if (time_out < {{ min_time_interval }}) {
+        mdtoast_error("请" + ({{ min_time_interval }} - time_out) + "秒后再试！")
+        return;
+      }
+    }
+
+    let table_title = {% if table_title %}{{ table_title | safe }}{% else %}$(".content-header h1").text(){% endif %};
+    let table_rows = []
+    for (let row of {{ table_id }}_table.rows().data().toArray()) {
+      let row_data = [];
+      for (let index in {{ table_id }}_table.columns().header().toArray()) {
+        row_data[index] = typeof(row[index]) == "string" ? row[index] : row[index].display;
+        if (typeof(row[index]) == "string") {
+          row_data[index] = row[index];
+        } else {
+          row_data[index] = row[index].display;
+        }
+        if (row_data[index] && row_data[index][0] === "<")
+          row_data[index] = $(row_data[index]).text();
+        row_data[index] = row_data[index].trim()
+      }
+      table_rows.push(row_data.slice({{ skip_td_num }}))
+    }
+    let table_header = [];
+    for (let header_info of {{ table_id }}_table.columns().header().toArray()) {
+      table_header.push(header_info.innerText)
+    }
+    confirm_dialog(
+      "导出", "确定要导出报表吗？",
+      {
+        okClick: function() {
+          this.hide();
+          $.StandardPost(
+            "{% url 'utils:export_excel' %}",
+            {
+              "table_title": table_title,
+              "table_header": JSON.stringify(table_header.slice({{ skip_td_num }})),
+              "table_rows": JSON.stringify(table_rows),
+            },
+          )
+          {{ table_id }}_latest_export_date = new Date();
+        }
+      }
+    );
+  });
+});
+</script>

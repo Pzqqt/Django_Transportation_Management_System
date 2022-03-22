@@ -1,0 +1,20 @@
+{% load wuliu_extras %}
+{% load bool from utils_extras %}
+{% for child in list %}
+    <ol class="nav flex-column tree-pl">
+        <li>
+            <div class="custom-control custom-checkbox {% if not child.children %}permission-padding-fix{% endif %}">
+              {% if child.children %}
+                <i class="far fa-minus-square tree-icon-pl"></i>
+              {% else %}
+                <span class="tree-icon-pl"></span>
+              {% endif %}
+                <input type="checkbox" class="custom-control-input" data-is_group="{{ child.children | bool }}" data-select_value="{{ child.id }}" id="{{ child.name }}_checkbox" {% if child.enabled %}checked{% endif %}>
+                <label class="custom-control-label custom-checkbox-label-fix" for="{{ child.name }}_checkbox">{{ child.print_name }}</label>
+            </div>
+        </li>
+      {% if child.children %}
+        {% _show_permission_tree child.children %}
+      {% endif %}
+    </ol>
+{% endfor %}

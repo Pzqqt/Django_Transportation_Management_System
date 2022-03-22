@@ -1,0 +1,56 @@
+{% extends "wuliu/_layout.html" %}
+{% load static %}
+{% load cache %}
+{% load wuliu_extras %}
+{% block title %}批量修改用户权限{% endblock %}
+{% block header_title %}批量修改用户权限{% endblock %}
+{% block head_append_js %}
+  <script src="{% static 'AdminLTE-3.0.5/plugins/bootstrap-switch/js/bootstrap-switch.min.js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:batch_edit_user_permission' %}" id="form-batch_edit_user_permission" class="form col-12" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <legend class="row">用户</legend>
+                    <div class="row align-items-end">
+                      {% show_form_input_field form.user "选择用户" "col col-md-4" %}
+                        <div class="col col-md-2">
+                            <button class="btn btn-primary mr-2" id="button_commit" style="margin-bottom: 0.125rem;">确认</button>
+                        </div>
+                      {% show_form_input_field form.permission %}
+                    </div>
+                    <legend class="row">权限</legend>
+                    {{ form.grant_or_deny }} <span class="ml-1">以下权限：</span>
+                </fieldset>
+            </form>
+            <div class="col-12 col-md-6">
+              {% cache 300 "full_permission_tree" %}
+                {% show_full_permission_tree "permission_tree" %}
+              {% endcache %}
+            </div>
+<script>
+$(document).ready(function() {
+  $("input[data-bootstrap-switch]").each(function() {
+    $(this).bootstrapSwitch();
+  });
+  $("#button_commit").click(function(e) {
+    if ($("#form-batch_edit_user_permission [name='user']").val().length === 0) {
+      mdtoast_error("你没有选择任何用户。");
+      e.preventDefault()
+      return;
+    }
+    let permission_list = [];
+    for (let checkbox of $("#permission_tree input:checkbox:checked[data-is_group='0']")) {
+      permission_list.push($(checkbox).attr("data-select_value"));
+    }
+    if (permission_list.length === 0) {
+      mdtoast_error("你没有选择任何权限。");
+      e.preventDefault()
+      return;
+    }
+    $("#form-batch_edit_user_permission [name='permission']").val(permission_list);
+    $("#form-batch_edit_user_permission").submit();
+  })
+});
+</script>
+          {% endblock %}

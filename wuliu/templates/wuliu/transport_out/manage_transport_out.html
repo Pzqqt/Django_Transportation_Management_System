@@ -1,0 +1,55 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}发车出库{% endblock %}
+{% block header_title %}发车出库{% endblock %}
+{% block header_subtitle %}车次管理{% endblock %}
+{% block head_append_js %}
+    <script src="{% url 'wuliu:manage_transport_out_js' %}"></script>
+{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:manage_transport_out' %}" id="form-search_transport_out" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                {% show_form_input_field form.transport_out_id "" "col-6 col-md" %}
+                                {% show_form_input_field form.truck_number_plate "" "col-6 col-md" %}
+                                {% show_form_input_field form.driver_name "" "col-6 col-md" %}
+                                {% show_form_input_field form.status "" "col-6 col-md" %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.create_date_start "" "col-6 col-md" %}
+                                {% show_form_input_field form.create_date_end "" "col-6 col-md" %}
+                                {% show_form_input_field form.src_department "" "col-6 col-md" %}
+                                {% show_form_input_field form.dst_department "" "col-6 col-md" %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+              {% if "manage_transport_out__add_edit_delete_start"|is_logged_user_has_perm:request %}
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'wuliu:add_transport_out' %}">
+                    <i class="ri-c ri-add-fill"><span>新增</span></i>
+                </a>
+                <button class="btn btn-outline-primary btn-sm" id="button_to_edit">
+                    <i class="ri-c ri-file-edit-line"><span>修改</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_to_drop">
+                    <i class="ri-c ri-delete-bin-line"><span>删除车次</span></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm" id="button_to_start">
+                    <i class="ri-c ri-truck-line"><span>确认发车</span></i>
+                </button>
+              {% endif %}
+            </div>
+            <div class="col-12">
+                {% show_transport_out_table transport_out_list "to_search_result" %}
+            </div>
+          {% endblock %}

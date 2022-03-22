@@ -1,0 +1,31 @@
+<div class="{{ div_class }}" style="{% if field.field.widget.attrs.hidden or field.is_hidden %}display: none;{% endif %}">
+    <div class="input-group row" style="margin-left: 0;">
+        <label class="col-12 {% if field.field.required %}label-required{% endif %}" style="padding-left: 0;" for="{{ field.id_for_label }}">
+            {{ label | default:field.label | default:"" }}
+        </label>
+        {{ field }}
+        <div class="input-group-append" data-for="{{ field_append.html_name }}">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ field_append_initial_string }}
+            </button>
+            <div class="dropdown-menu">
+              {% for choice in field_append_choices %}
+                <a class="dropdown-item" data-select_value="{{ choice.0 }}" href="javascript:">{{ choice.1 }}</a>
+              {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<select name="{{ field_append.html_name }}" hidden>
+  {% for choice in field_append_choices %}
+    <option value="{{ choice.0 }}" {% if field_append_initial_value == choice.0 %}selected{% endif %}></option>
+  {% endfor %}
+</select>
+<script>
+$(function() {
+  $('.input-group-append[data-for="{{ field_append.html_name }}"] .dropdown-item').click(function() {
+    $('select[name="{{ field_append.html_name }}"]').val($(this).attr("data-select_value"));
+    $(this).parents(".input-group-append").find(".dropdown-toggle").html($(this).html());
+  });
+});
+</script>

@@ -1,0 +1,69 @@
+<script>
+const {{ table_id }}_table = $("#{{ table_id }}").DataTable({
+  "autoWidth": false,
+  "buttons": [
+    {
+      extend: 'colvis',
+      columns: ':gt({% if have_check_box %}2{% else %}1{% endif %})',
+      text: "<i class='fas fa-columns pr-1'></i>",
+    },
+  ],
+  "dom":
+    "<'row'<'col-sm-12 col-md-6'<'d-flex'<'p-1 pt-2'l><'p-1'B>>><'col-sm-12 col-md-6 child-flex child-flex-xr child-flex-yc'f>>" +
+    "<'row'<'col-12'tr>>" +
+    "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 pt-2'p>>",
+  "scrollX": true,
+  "scrollY": "400px",
+  "lengthMenu": [10, 25, 50, 100],
+  "columnDefs": [
+    {
+      "targets": {% if have_check_box %}[0, 1]{% else %}[0]{% endif %},
+      "orderable": false,
+    },
+  ],
+  "order": [[ 2, "asc" ]],
+  "fixedColumns": {
+    {# 窗口宽度与高度之比小于4:3时只能固定1列(无checkbox)或两列(有checkbox) #}
+    left: (
+      window.innerWidth / window.innerHeight < 1.33 ?
+      {% if have_check_box %}2{% else %}1{% endif %} :
+      {% if custom_fixed_columns_left is None %}{% if have_check_box %}3{% else %}2{% endif %}{% else %}{{ custom_fixed_columns_left }}{% endif %}
+    )
+  },
+  "language": {
+    "emptyTable": "暂无数据",
+    "infoEmpty": "暂无数据",
+    "lengthMenu": "显示 _MENU_ 条/页",
+    "info": "共 _MAX_ 条 | 第 _PAGE_ / _PAGES_ 页",
+    "search": "搜索：",
+    "paginate": {
+      "first": "&laquo;",
+      "last": "&raquo;",
+    "next": "&gt;",
+      "previous": "&lt;",
+    }
+  }
+})
+{% if have_check_box %}
+$('#{{ table_id }}_checkbox_all').change(function() {
+  if ($(this).is(":checked")) {
+    {{ table_id }}_table.rows().nodes().each(function(row) {
+      if (! $(row).find("input:checkbox").is(":checked")) {
+        $(row).find("input:checkbox").click();
+      }
+    });
+  } else {
+    {{ table_id }}_table.rows().nodes().each(function(row) {
+      if ($(row).find("input:checkbox").is(":checked")) {
+        $(row).find("input:checkbox").click();
+      }
+    });
+  }
+});
+{% endif %}
+{{ table_id }}_table.on("draw.dt search.dt", function() {
+  {{ table_id }}_table.column(0).nodes().each(function(cell, i) {
+    cell.innerHTML = '<span style="font-weight: bold">' + (i + 1) + "</span>";
+  });
+}).draw();
+</script>

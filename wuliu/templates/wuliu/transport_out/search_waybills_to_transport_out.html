@@ -1,0 +1,43 @@
+{% extends "wuliu/waybill/_layout_search_waybill.html" %}
+{% block title %}选择运单{% endblock %}
+{% block header_title %}选择运单{% endblock %}
+{% block header_subtitle %}请查询并选择你需要配载的运单{% endblock %}
+              {% block search_form_action %}{% url 'wuliu:search_waybills_to_transport_out' %}{% endblock %}
+              {% block action_bar %}
+                <form id="form-add_waybills_to_transport_out" action="{% url 'wuliu:add_waybills_to_transport_out' %}" method="post" hidden>
+                    {% csrf_token %}
+                    <input type="text" name="wb_add_list">
+                </form>
+                <button class="btn btn-outline-primary btn-sm" id="wb_add_submit">
+                    <i class="ri-c ri-add-fill"><span>添加</span></i>
+                </button>
+                <script>
+$(document).ready(function() {
+  $("#wb_add_submit").click(function() {
+    let checked_waybills = find_datatable_rows_clicked(wb_search_result_table);
+    if (checked_waybills.length === 0) {
+      mdtoast_error("请至少选择一个运单。");
+      return;
+    }
+    for (let jq_obj of checked_waybills.toArray()) {
+    {% if logged_user_type == USER_TYPES.GoodsYard %}
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") != "{{ WB_STATUSES.GoodsYardArrived }}") {
+        mdtoast_error('只能选择"货场入库"状态的运单。');
+        return;
+      }
+    {% else %}
+      if (jq_obj.find("[data-status_id]").attr("data-status_id") >= "{{ WB_STATUSES.Loaded }}") {
+        mdtoast_error("只能选择尚未配载/发车的运单。");
+        return;
+      }
+    {% endif %}
+    }
+    let waybills_ready_to_transport_out = checked_waybills.map(function(jq_obj) {
+      return jq_obj.find("[data-wb_id]").attr("data-wb_id");
+    });
+    $('#form-add_waybills_to_transport_out [name="wb_add_list"]').val(waybills_ready_to_transport_out.join(","));
+    $('#form-add_waybills_to_transport_out').submit();
+  });
+});
+                </script>
+              {% endblock %}

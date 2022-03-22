@@ -1,0 +1,63 @@
+{% load wuliu_extras %}
+{% load subtract from utils_extras %}
+<div class="card card-primary card-outline shadow"><div class="card-body">
+    <table id="{{ table_id }}" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_checkbox_all">
+                        <label class="custom-control-label" for="{{ table_id }}_checkbox_all"></label>
+                    </div>
+                </th>
+                <th>账单编号</th>
+                <th>状态</th>
+                <th>创建时间</th>
+                <th>结算时间</th>
+                <th>创建人</th>
+                <th>收款人姓名</th>
+                <th>收款人电话号码</th>
+                <th>收款人银行名称</th>
+                <th>收款人银行卡号</th>
+                <th>收款人身份证号</th>
+                <th>应付货款</th>
+                <th>扣付运费</th>
+                <th>手续费</th>
+                <th>实付金额</th>
+                <th>备注</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for cargo_price_payment in cargo_price_payment_list %}
+            <tr>
+                <td></td>
+                <td data-cpp_id="{{ cargo_price_payment.id }}">
+                    <div class="custom-control custom-checkbox ml-2">
+                        <input type="checkbox" class="custom-control-input" id="{{ table_id }}_to_{{ cargo_price_payment.id }}">
+                        <label class="custom-control-label" for="{{ table_id }}_to_{{ cargo_price_payment.id }}"></label>
+                    </div>
+                </td>
+                <td data-order="{{ cargo_price_payment.id }}"><a href="{% url 'wuliu:detail_cargo_price_payment' cargo_price_payment.id %}">{{ cargo_price_payment.get_full_id }}</a></td>
+                <td data-key="cpp_status" data-status_id="{{ cargo_price_payment.status }}" data-order="{{ cargo_price_payment.status }}">{{ cargo_price_payment.get_status_display }}</td>
+                <td data-key="cpp_create_time" data-order="{{ cargo_price_payment.create_time.timestamp }}">{{ cargo_price_payment.create_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="cpp_settle_accounts_time" data-order="{{ cargo_price_payment.settle_accounts_time.timestamp }}">{{ cargo_price_payment.settle_accounts_time | date:"Y-m-d H:i:s" }}</td>
+                <td data-key="cpp_create_user" data-user_id="{{ cargo_price_payment.create_user.id }}">{{ cargo_price_payment.create_user.name }}</td>
+                <td data-key="cpp_payee_name">{{ cargo_price_payment.payee_name }}</td>
+                <td data-key="cpp_payee_phone">{{ cargo_price_payment.payee_phone }}</td>
+                <td data-key="cpp_payee_bank_name">{{ cargo_price_payment.payee_bank_name }}</td>
+                <td data-key="cpp_payee_bank_number">{{ cargo_price_payment.payee_bank_number }}</td>
+                <td data-key="cpp_payee_credential_num">{{ cargo_price_payment.payee_credential_num }}</td>
+              {% with total_fee=cargo_price_payment.gen_total_fee %}
+                <td data-key="cpp_total_cargo_price">{{ total_fee.cargo_price }}</td>
+                <td data-key="cpp_total_deduction_fee">{{ total_fee.deduction_fee }}</td>
+                <td data-key="cpp_total_deduction_fee">{{ total_fee.cargo_handling_fee }}</td>
+                <td data-key="cpp_final_fee">{{ total_fee.cargo_price | subtract:total_fee.deduction_fee | subtract:total_fee.cargo_handling_fee }}</td>
+              {% endwith %}
+                <td data-key="cpp_remark">{{ cargo_price_payment.remark }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% js_init_datatable table_id True 4 %}

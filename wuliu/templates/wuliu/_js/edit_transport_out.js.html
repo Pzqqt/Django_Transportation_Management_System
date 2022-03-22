@@ -1,0 +1,50 @@
+// <script>
+$(document).ready(function() {
+  function transport_submit() {
+    if (! ($("#form-edit_transport_out [name='truck']").val() &&
+        $("#form-edit_transport_out [name='driver_name']").val().trim() &&
+        $("#form-edit_transport_out [name='driver_phone']").val().trim())) {
+      mdtoast_error("请完善车辆信息！");
+      return;
+    }
+      let waybills = find_datatable_rows_all(ready_transport_out_table);
+      if (waybills.length === 0) {
+      mdtoast_error("你没有配载任何运单！");
+      return;
+    }
+  {% if logged_user_is_goods_yard %}
+    {# 如果用户所属部门为货场，则要配载的运单到达部门必须和车次到达部门一致 #}
+      let transport_out_dst_dept_id = $("#form-edit_transport_out [name='dst_department']").val();
+      for (let wb of waybills.toArray()) {
+        let wb_dst_dept_id = wb.find("[data-dst_dept_id]").attr("data-dst_dept_id");
+        if (wb_dst_dept_id !== transport_out_dst_dept_id) {
+        alert_dialog("运单 " + wb.find("a").text() + " 到达部门与本车次到达部门不一致！");
+        return;
+      }
+    }
+  {% endif %}
+    let waybills_list = waybills.map(function(wb) {
+      return wb.find("[data-wb_id]").attr("data-wb_id")
+    }).toArray();
+    let waybills_multiple = $("<select name='waybills' hidden multiple></select>");
+    waybills_list.forEach(function(value_) {
+      waybills_multiple.append("<option value=" + value_ + " selected></option>")
+    });
+    $("#form-edit_transport_out").append(waybills_multiple);
+    $("#form-edit_transport_out").submit();
+  }
+  $("#form-edit_transport_out [name='truck']").change(function() {
+    let truck_id = $(this).val();
+    if (truck_id) {
+      $.getJSON("{% url 'wuliu:api_get_truck_info' %}?truck_id=" + truck_id, function(result) {
+        $('#form-edit_transport_out [name="driver_name"]').val(result.data.truck_info.driver_name);
+        $('#form-edit_transport_out [name="driver_phone"]').val(result.data.truck_info.driver_phone);
+      });
+    } else {
+      $('#form-edit_transport_out [name="driver_name"]').val("");
+      $('#form-edit_transport_out [name="driver_phone"]').val("");
+    }
+  });
+  $("#transport_submit").click(transport_submit);
+});
+// </script>

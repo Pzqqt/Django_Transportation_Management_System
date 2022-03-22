@@ -1,0 +1,98 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block head_append_js %}
+  <script src="{% url 'wuliu:edit_waybill_js' %}"></script>
+{% endblock %}
+          {% block content %}
+              {% block content_header %}{% endblock %}
+            <form action="{% block edit_form_action %}{% endblock %}" id="form-edit_waybill" class="form col-12" method="post">
+                <fieldset>
+                  {# 为了安全起见, 运单详情页面不提供csrf_token #}
+                  {% if not detail_view %}
+                    {% csrf_token %}
+                  {% endif %}
+                    <legend class="row">基本信息</legend>
+                  {% if form.id_ %}
+                    <div class="row">
+                        {% show_form_input_field form.id_ "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.id "" "" %}
+                      {% if detail_view %}
+                        {% show_form_input_field form.create_time "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.status "" "col-6 col-md-2" %}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                    <div class="row mb-2">
+                        {% show_form_input_field form.src_department "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.dst_department "" "col-6 col-md-3" %}
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-6"><div class="callout callout-info shadow">
+                            <div class="row mb-2">
+                                <h3 class="card-title"><i class="fas fa-map-marker-alt mr-2"></i>发货人信息</h3>
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.src_customer "选择客户" "col-12" %}
+                                {% show_form_input_field form.src_customer_name "姓名" "col-5" %}
+                                {% show_form_input_field form.src_customer_phone "电话" "col-7" %}
+                                {% show_form_input_field form.src_customer_credential_num "身份证号码" "col-md-5" %}
+                                {% show_form_input_field form.src_customer_address "详细地址" "col-md-7" %}
+                            </div>
+                        </div></div>
+                        <div class="col-12 col-md-6"><div class="callout callout-success shadow">
+                            <div class="row mb-2">
+                                <h3 class="card-title"><i class="fas fa-map-marker-alt mr-2"></i>收货人信息</h3>
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.dst_customer "选择客户" "col-12" %}
+                                {% show_form_input_field form.dst_customer_name "姓名" "col-5" %}
+                                {% show_form_input_field form.dst_customer_phone "电话" "col-7" %}
+                                {% show_form_input_field form.dst_customer_credential_num "身份证号码" "col-md-5" %}
+                                {% show_form_input_field form.dst_customer_address "详细地址" "col-md-7" %}
+                            </div>
+                        </div></div>
+                    </div>
+                    <legend class="row">货物信息</legend>
+                    <div class="row">
+                        {% show_form_input_field form.cargo_name "" "col-4 col-md" %}
+                        {% show_form_input_field form.cargo_num "" "col-4 col-md" %}
+                        {% show_form_input_field form.cargo_volume "总体积 (m³)" "col-4 col-md" %}
+                        {% show_form_input_field form.cargo_weight "总重量 (Kg)" "col-4 col-md" %}
+                        {% show_form_input_field form.cargo_price "货款 (元)" "col-4 col-md" %}
+                        {% show_form_input_field form.cargo_handling_fee "手续费 (元)" "col-4 col-md" %}
+                    </div>
+                    <legend class="row">运费</legend>
+                  {# 运单详情页面不显示标准运费 #}
+                  {% if not detail_view %}
+                    <div class="row">
+                        <span class="ml-2 my-1">标准运费：<code id="_fee_standard">0</code>元</span>
+                    </div>
+                  {% endif %}
+                    <div class="row">
+                        {% show_form_input_field form.fee "运费 (元)" "col-6 col-md-2" %}
+                        {% show_form_input_field form.fee_type "支付方式" "col-6 col-md-2" %}
+                        {% show_form_input_field form.customer_remark "" %}
+                        {% show_form_input_field form.company_remark "" %}
+                    </div>
+                    <div class="row">
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <p>
+                                <b>现付合计：</b>
+                                <span class="total-fee"><span id="_fee_now">0</span></span>
+                            </p>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-3">
+                            <p>
+                                <b>提货应付：</b>
+                                <span class="total-fee"><span id="_fee_dst">0</span></span>
+                            </p>
+                        </div>
+                    </div>
+                  {# 运单详情页面不提供提交按钮 #}
+                  {% if not detail_view %}
+                    <button type="submit" class="btn btn-primary">提交</button>
+                  {% endif %}
+                </fieldset>
+            </form>
+              {% block content_footer %}{% endblock %}
+          {% endblock %}

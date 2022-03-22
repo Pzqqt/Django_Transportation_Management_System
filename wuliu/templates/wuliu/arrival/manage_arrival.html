@@ -1,0 +1,64 @@
+{% extends "wuliu/_layout.html" %}
+{% load wuliu_extras %}
+{% block title %}到货管理{% endblock %}
+{% block header_title %}到货管理{% endblock %}
+{% block header_subtitle %}到货管理{% endblock %}
+          {% block content %}
+            <form action="{% url 'wuliu:manage_arrival' %}" class="form col-12 mb-2" method="post">
+                <fieldset>
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="row">
+                                {% show_form_input_field form.transport_out_id "" "col-6 col-md" %}
+                                {% show_form_input_field form.truck_number_plate "" "col-6 col-md" %}
+                                {% show_form_input_field form.driver_name "" "col-6 col-md" %}
+                                {% show_form_input_field form.status "" "col-6 col-md" %}
+                            </div>
+                            <div class="row">
+                                {% show_form_input_field form.start_date_start "" "col-6 col-md" %}
+                                {% show_form_input_field form.start_date_end "" "col-6 col-md" %}
+                                {% show_form_input_field form.src_department "" "col-6 col-md" %}
+                                {% show_form_input_field form.dst_department "" "col-6 col-md" %}
+                            </div>
+                        </div>
+                        <div class="col-md child-flex child-flex-xc child-flex-yc pt-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"> 查询</i>
+                            </button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+            <div class="col-12 mb-2">
+                <button class="btn btn-outline-primary btn-sm" id="button_arrival_confirm">
+                    <i class="ri-c ri-truck-line"><span>确认到货</span></i>
+                </button>
+            </div>
+            <div class="col-12">
+                {% show_transport_out_table transport_out_list "to_list" %}
+            </div>
+            <script>
+$(document).ready(function() {
+  $("#button_arrival_confirm").click(function() {
+    let checked_transport_out = find_datatable_rows_clicked(to_list_table);
+    if (checked_transport_out.length !== 1) {
+      mdtoast_error("请选择一个车次。");
+      return;
+    }
+    checked_transport_out = checked_transport_out[0];
+    if (checked_transport_out.find("[data-dst_dept_id]").attr("data-dst_dept_id") != "{{ request.session.user.department_id }}") {
+      mdtoast_error("该车次到达部门与当前部门不一致。");
+      return;
+    }
+    if (parseInt(checked_transport_out.find("[data-status_id]").attr("data-status_id")) == "{{ TO_STATUSES.Arrived }}") {
+      mdtoast_error("该车次已确认到货。");
+      return;
+    }
+    let checked_transport_out_id = checked_transport_out.find("[data-to_id]").attr("data-to_id");
+    window.location.replace("{% url 'wuliu:confirm_arrival' %}?transport_out_id=" + checked_transport_out_id);
+  });
+});
+            </script>
+
+          {% endblock %}

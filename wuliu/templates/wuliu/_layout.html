@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+{% load static %}
+{% load wuliu_extras %}
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="theme-color" content="#3d4f5d">
+
+  <title>{% block title %}{% endblock %} | {% get_company_name %}</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  <!-- Select2 -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/select2/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/plugins/datatables-fixedcolumns/css/fixedColumns.bootstrap4.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'AdminLTE-3.0.5/dist/css/adminlte.min.css' %}">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+  <!-- REQUIRED SCRIPTS -->
+  <!-- jQuery -->
+  <script src="{% static 'AdminLTE-3.0.5/plugins/jquery/jquery.min.js' %}"></script>
+  <!-- Bootstrap 4 -->
+  <script src="{% static 'AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <!-- overlayScrollbars -->
+  <script src="{% static 'AdminLTE-3.0.5/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+  <!-- Select2 -->
+  <script src="{% static 'AdminLTE-3.0.5/plugins/select2/js/select2.full.min.js' %}"></script>
+  <!-- DataTables -->
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables-fixedcolumns/js/dataTables.fixedColumns.min.js' %}"></script>
+  <script src="{% static 'AdminLTE-3.0.5/plugins/datatables-fixedcolumns/js/fixedColumns.bootstrap4.min.js' %}"></script>
+  <!-- AdminLTE App -->
+  <script src="{% static 'AdminLTE-3.0.5/dist/js/adminlte.min.js' %}"></script>
+
+  <!-- Custom -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/remixicon/remixicon.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/duDatepicker.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/mdtimepicker.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/duDialog.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/mdtoast.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/multiple-select/multiple-select.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/multiple-select/theme/bootstrap.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}">
+  {% block head_append_css %}
+  {% endblock %}
+
+  <script src="{% static 'js/duDatepicker.min.js' %}"></script>
+  <script src="{% static 'js/mdtimepicker.min.js' %}"></script>
+  <script src="{% static 'js/duDialog.min.js' %}"></script>
+  <script src="{% static 'js/mdtoast.min.js' %}"></script>
+  <script src="{% static 'js/multiple-select.min.js' %}"></script>
+  <script src="{% static 'js/js.cookie-3.0.0.min.js' %}"></script>
+  <script src="{% static 'js/custom.js' %}"></script>
+  {% block head_append_js %}
+  {% endblock %}
+
+</head>
+
+{# layout-fixed: 固定sidebar, 当sidebar内容过长时显示自定义滚动条(依赖: overlayScrollbars), 否则则使整个页面变长 #}
+{# layout-navbar-fixed: 固定navbar, navbar始终在页面顶部 #}
+{# sidebar-collapse: 收起sidebar, 通过点击'[data-widget="pushmenu"]'来切换 #}
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed {% if request.COOKIES.ui_enable_sidebar_collapse == 'true' %}sidebar-collapse{% endif %}">
+
+<div class="wrapper">
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="{% url 'wuliu:welcome' %}" class="nav-link">首页</a>
+      </li>
+    </ul>
+
+    <!-- Search FORM -->
+    <form action="{% url 'wuliu:quick_search_waybill' %}" class="form-inline ml-3" method="post">
+      {% csrf_token %}
+      <div class="input-group input-group-sm">
+        <input class="form-control form-control-navbar" type="text" name="search_string" placeholder="快速查单(运单号/姓名/电话)" aria-label="Search">
+        <div class="input-group-append">
+          <button class="btn btn-navbar" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </form>
+
+  {% comment "Unused now" %}
+    <!-- Right navbar links -->
+    <ul class="navbar-nav ml-auto">
+      <!-- Notifications Dropdown Menu -->
+      <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+          <i class="far fa-bell"></i>
+          <span class="badge badge-warning navbar-badge">15</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+          <span class="dropdown-header">15 条未读消息</span>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-envelope mr-2"></i> 4 条新消息
+            <span class="float-right text-muted text-sm">3 mins</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-users mr-2"></i> 8 个好友请求
+            <span class="float-right text-muted text-sm">12 hours</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item">
+            <i class="fas fa-file mr-2"></i> 3 个问题报告
+            <span class="float-right text-muted text-sm">2 days</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <a href="#" class="dropdown-item dropdown-footer">查看所有未读消息</a>
+        </div>
+      </li>
+    </ul>
+  {% endcomment %}
+  </nav>
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{% url 'wuliu:welcome' %}" class="brand-link elevation-4">
+      <img src="{% static 'AdminLTE-3.0.5/dist/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+           style="opacity: .8">
+      <span class="brand-text font-weight-light">{% get_company_name %}有限公司</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      <nav class="mt-2" style="border-bottom: 1px solid #4f5962;">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link" style="padding-left: 14px;">
+              <img src="{% static 'AdminLTE-3.0.5/dist/img/user2-160x160.jpg' %}" class="nav-user-icon img-circle elevation-2" alt="User Image">
+              <p>{{ request.session.user.name }} ({{ request.session.user.department_name }})</p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'wuliu:change_password' %}" class="nav-link ">
+                  <i class="fas fa-lock nav-icon"></i>
+                  <p>修改密码</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'wuliu:logout' %}" class="nav-link ">
+                  <i class="fas fa-sign-out-alt nav-icon"></i>
+                  <p>退出登录</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
+            {% show_sidebar_menu_items %}
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper text-sm">
+    <!-- Content Header (Page header) -->
+    <div class="content-header ml-1">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <h1 class="text-dark">{% block header_title %}{% endblock %}</h1>
+        </div>
+        <div class="row mb-2">
+          <span class="text-muted">{% block header_subtitle %}{% endblock %}</span>
+        </div>
+      </div>
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+    {% for message in messages %}
+      {% show_message message %}
+    {% endfor %}
+      <div class="container-fluid mb-4">
+        <div class="card p-3 row">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+    <!-- /.content -->
+  </div>
+
+  <!-- Main Footer -->
+  <footer class="main-footer text-sm">
+    <!-- To the right -->
+    <div class="float-right d-none d-sm-inline">
+      Copyright &copy; 2021. All rights reserved.
+    </div>
+    <!-- Default to the left -->
+    <strong>Powered By
+      <a href="https://adminlte.io" target="_blank">AdminLTE.io</a>
+      ,
+      <a href="https://www.djangoproject.com/" target="_blank">Django</a>
+      .
+    </strong>
+  </footer>
+</div>
+
+</body>
+
+{% comment "Disable WebSocket for now" %}
+<script>
+const messageSocket = new WebSocket('ws://' + window.location.host + '/ws/message/');
+
+// 建立连接时: onopen
+messageSocket.onopen = function(e) {
+  console.log("Websocket has been successfully connected.");
+};
+
+// 收到消息时: onmessage
+messageSocket.onmessage = function(e) {
+  let json_data = JSON.parse(e.data);
+  mdtoast_success("来自服务器的消息：" + json_data.message);
+};
+
+// 断开链接时: onclose
+messageSocket.onclose = function(e) {
+  console.error("Websocket closed unexpectedly.");
+};
+
+// 主动断开链接: close
+// 发送消息: send
+// messageSocket.send(JSON.stringify({
+  // 'message': "测试消息"
+// }));
+</script>
+{% endcomment %}
+
+</html>

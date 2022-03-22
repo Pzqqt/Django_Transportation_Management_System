@@ -1,0 +1,90 @@
+{% extends "wuliu/_layout.html" %}
+{% load static %}
+{% load wuliu_extras %}
+{% block title %}用户管理{% endblock %}
+{% block header_title %}用户管理{% endblock %}
+{% block head_append_js %}
+  <script src="{% static 'AdminLTE-3.0.5/plugins/bootstrap-switch/js/bootstrap-switch.min.js' %}"></script>
+{% endblock %}
+
+          {% block content %}
+            <form action="{% url 'wuliu:manage_users' %}" id="form-manage_users" class="form col-12" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="row align-items-end">
+                      {% show_form_input_field form.user "选择用户" "col-12 col-md-5 mb-1" %}
+                        <div class="col-12 col-md-2">
+                          {% comment "TODO: 实现添加用户的功能" %}
+                            <a class="btn btn-primary mr-2" href="#" style="margin-bottom: 0.375rem;">添加用户</a>
+                          {% endcomment %}
+                        </div>
+                        <div class="col-12 d-flex flex-column flex-md-row">
+                            <div class="mt-1">
+                                {{ form.enabled }} <span class="mx-1">该用户，</span>
+                            </div>
+                            <div class="mt-1">
+                                {{ form.administrator }} <span class="ml-1">管理员。</span>
+                            </div>
+                        </div>
+                      {% show_form_input_field form.department "" "col-12 col-md-7" %}
+                      {% show_form_input_field form.reset_password "" "col-12 col-md-7" %}
+                      {% show_form_input_field form.reset_password_again "" "col-12 col-md-7" %}
+                        <div class="col-12 col-md-5 align-self-end text-md">
+                            <span id="reset_password_again_note"></span>
+                        </div>
+                    </div>
+                </fieldset>
+                <button class="btn btn-primary mt-2" type="submit">保存</button>
+            </form>
+<script>
+$(document).ready(function() {
+  let reset_password_flag = false;
+  let jq_reset_password = '#form-manage_users [name="reset_password"]';
+  let jq_reset_password_again = '#form-manage_users [name="reset_password_again"]';
+  $("input[data-bootstrap-switch]").each(function() {
+    $(this).bootstrapSwitch();
+  });
+  $("#form-manage_users [name='user']").change(function() {
+    let user_id = $(this).val();
+    if (user_id) {
+      $.getJSON("{% url 'wuliu:api_get_user_info' %}?user_id=" + user_id, function(result) {
+        let user_info = result.data.user_info;
+        $("#form-manage_users [name='enabled']").bootstrapSwitch("state", user_info.enabled);
+        $("#form-manage_users [name='administrator']").bootstrapSwitch("state", user_info.administrator);
+        $("#form-manage_users [name='department']").val(user_info.department_id).trigger("change");
+      });
+    } else {
+      $("#form-manage_users [name='enabled']").bootstrapSwitch("state", false);
+      $("#form-manage_users [name='administrator']").bootstrapSwitch("state", false);
+      $("#form-manage_users [name='department']").val(null).trigger("change");
+    }
+  });
+  $(jq_reset_password + ', ' + jq_reset_password_again).change(function() {
+    let new_password = $(jq_reset_password).val().trim();
+    let new_password_again = $(jq_reset_password_again).val().trim();
+    if (new_password && new_password_again) {
+      if (new_password === new_password_again) {
+        $("#reset_password_again_note").html('<i class="ri-checkbox-circle-fill"></i>').attr("class", "text-success");
+        reset_password_flag = true;
+      } else {
+        $("#reset_password_again_note").html('<i class="ri-close-circle-fill"></i> 两次输入的密码不一致！').attr("class", "text-danger");
+        reset_password_flag = false;
+      }
+    } else {
+      $("#reset_password_again_note").html("");
+      reset_password_flag = false;
+    }
+  });
+
+  $("#form-manage_users").submit(function(e) {
+    if (! $("#form-manage_users [name='user']").val()) {
+      mdtoast_error("你没有选择任何用户。");
+      e.preventDefault();
+    }
+    if ($(jq_reset_password).val() || $(jq_reset_password_again).val())
+      if (! reset_password_flag)
+        e.preventDefault();
+  })
+});
+</script>
+          {% endblock %}
