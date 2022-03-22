@@ -1,0 +1,741 @@
+/*!Don't remove this!
+ * duDatePicker styles
+ * 
+ * Author: Dionlee Uy
+ * Email: dionleeuy@gmail.com
+ */
+/* @import url("https://fonts.googleapis.com/css?family=Roboto:400,500"); */
+.dcalendarpicker {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  visibility: hidden;
+  opacity: 0;
+  background-color: transparent;
+  transition: background-color 0.2s linear, opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background-color, opacity;
+  z-index: 100001;
+  overflow: hidden;
+}
+
+.dcalendarpicker .dudp__wrapper {
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  line-height: normal;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  left: 50%;
+  bottom: 24px;
+  min-width: 272px;
+  overflow: hidden;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  outline: none;
+  border-radius: 4px;
+  transform: translateX(-50%) scale(1.05) perspective(1px);
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, -moz-transform, opacity;
+}
+
+.dcalendarpicker .dudp__calendar-header {
+  font-size: 18px;
+  padding: 20px;
+  color: gainsboro;
+  box-sizing: content-box;
+}
+
+.dcalendarpicker .dudp__calendar-header .dudp__sel-year,
+.dcalendarpicker .dudp__calendar-header .dcp_sel-date {
+  display: block;
+  cursor: pointer;
+}
+
+.dcalendarpicker .dudp__calendar-header .dudp__sel-year:hover,
+.dcalendarpicker .dudp__calendar-header .dcp_sel-date:hover {
+  color: #fff;
+}
+
+.dcalendarpicker .dudp__calendar-header .dcp_sel-date {
+  font-size: 30px;
+}
+
+.dcalendarpicker .dudp__cal-container {
+  position: relative;
+  background-color: #fff;
+  width: 284px;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  overflow: hidden;
+  flex: 0 1 auto;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-prev,
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-next {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  display: block;
+  text-align: center;
+  font-size: 28px;
+  line-height: 44px;
+  width: 48px;
+  height: 48px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 50%;
+  opacity: 1;
+  transition: opacity 0.25s cubic-bezier(0, 0, 0.2, 1), background-color 0.25s linear;
+  will-change: opacity, background-color;
+  z-index: 2;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-prev:hover,
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-next:hover {
+  background-color: #d9d9d9;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-prev:active,
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-next:active {
+  background-color: #bfbfbf;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-prev.dp__hidden,
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-next.dp__hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__btn-cal-next {
+  left: auto;
+  right: 12px;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar-views {
+  width: 860px;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.25s cubic-bezier(0, 0, 0.2, 1);
+  will-change: opacity;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar-views.dp__animate-out {
+  opacity: 0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar-views.dp__hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar {
+  display: inline-block;
+  padding: 0 16px 10px;
+  opacity: 1;
+  transform: translateX(-100%) perspective(1px);
+  transition: none;
+  will-change: transform;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar.dp__zooming {
+  transition: transform 0.25s, opacity 0.25s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar.dp__animate-zoom {
+  opacity: 0;
+  transform: translateX(-100%) perspective(1px) scale(0.85);
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar.dp__animate-left {
+  transform: translateX(-200%);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar.dp__animate-right {
+  transform: translateX(0);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-month-year {
+  text-align: center;
+  line-height: 48px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-month-year span {
+  display: inline-block;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__weekdays {
+  display: flex;
+  flex-direction: row;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__weekdays span {
+  display: inline-block;
+  flex: 0 1 auto;
+  width: 36px;
+  text-align: center;
+  color: #323232;
+  font-size: 11px;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week {
+  display: flex;
+  flex-direction: row;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date {
+  position: relative;
+  flex: 0 1 auto;
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  color: #323232;
+  width: 36px;
+  line-height: 36px;
+  height: 36px;
+  outline: none;
+  cursor: pointer;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  transition: background-color .24s, color .24s;
+  z-index: -1;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.dudp__pm, .dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.dudp__nm {
+  color: #969696;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.disabled {
+  cursor: not-allowed;
+  color: #c8c8c8;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):not(.range-from):not(.range-to):hover:before {
+  background-color: #d9d9d9;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):not(.range-from):not(.range-to):active:before {
+  background-color: #bfbfbf;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.in-range {
+  background-color: rgba(25, 118, 210, 0.2);
+  border-radius: 0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.selected, .dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-from, .dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  font-weight: normal;
+  color: #fff !important;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.selected:before, .dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-from:before, .dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #1976d2;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-from {
+  background-color: rgba(25, 118, 210, 0.2);
+  border-radius: 50% 0 0 50%;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(25, 118, 210, 0.2);
+  border-radius: 0 50% 50% 0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__calendar .dudp__cal-week .dudp__date.range-from.range-to {
+  border-radius: 50%;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transform: scale(1) perspective(1px);
+  transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1), opacity 0.25s cubic-bezier(0, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view.dp__animate-out {
+  opacity: 0;
+  transform: scale(1.3);
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view.dp__hidden {
+  display: none;
+  opacity: 0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view .dudp__month-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view .dudp__month {
+  flex: 0 1 auto;
+  display: inline-block;
+  line-height: 63px;
+  min-width: 63px;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color .2s linear;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view .dudp__month:hover {
+  background-color: #d9d9d9;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view .dudp__month:active {
+  background-color: #bfbfbf;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__months-view .dudp__month.selected {
+  font-weight: 500;
+  color: #1565c0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__years-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  opacity: 1;
+  transition: opacity 0.25s cubic-bezier(0, 0, 0.2, 1);
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__years-view.dp__hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__years-view .dudp__year {
+  display: block;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color .2s linear;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__years-view .dudp__year:hover {
+  background-color: #d9d9d9;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__years-view .dudp__year:active {
+  background-color: #bfbfbf;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__years-view .dudp__year.selected {
+  font-weight: 500;
+  font-size: 24px;
+  color: #1565c0;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons {
+  padding: 0 10px 10px;
+  text-align: right;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons.dp__hidden {
+  visibility: hidden;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons .dudp__button {
+  display: inline-block;
+  font-size: 14px;
+  padding: 0 16px;
+  min-width: 40px;
+  text-align: center;
+  text-transform: uppercase;
+  line-height: 32px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #1565c0;
+  border-radius: 4px;
+  transition: background-color .2s linear;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons .dudp__button.clear {
+  float: left;
+  color: #b71c1c !important;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons .dudp__button:hover {
+  background-color: #d9d9d9;
+}
+
+.dcalendarpicker .dudp__cal-container .dudp__buttons .dudp__button:active {
+  background-color: #bfbfbf;
+}
+
+.dcalendarpicker.dp__open {
+  visibility: visible;
+  opacity: 1;
+  background-color: rgba(10, 10, 10, 0.65);
+}
+
+.dcalendarpicker.dp__open .dudp__wrapper {
+  transform: translateX(-50%) scale(1);
+}
+
+.dcalendarpicker.dp__closing {
+  opacity: 0;
+  background-color: transparent;
+}
+
+.dcalendarpicker[inline='true'] {
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  background-color: transparent !important;
+  box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+}
+
+.dcalendarpicker[inline='true'] .dudp__wrapper {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  transform: none;
+}
+
+.dcalendarpicker[inline='true'].dp__open .dudp__wrapper {
+  transform: none;
+}
+
+.dcalendarpicker[inline='true'] .dudp__cal-container {
+  width: 272px;
+}
+
+.dcalendarpicker[inline='true'] .dudp__cal-container .dudp__calendar {
+  padding: 0 10px;
+}
+
+@media (max-height: 414px) {
+  .dcalendarpicker .dudp__wrapper {
+    flex-direction: row;
+    bottom: 8px;
+  }
+  .dcalendarpicker .dudp__calendar-header {
+    width: 110px;
+  }
+}
+
+@media (max-height: 320px) {
+  .dcalendarpicker .dudp__wrapper {
+    bottom: 0;
+  }
+}
+
+[datepicker-display='on'] {
+  overflow: hidden;
+}
+
+.dudp__wrapper[data-theme='red'] .dudp__calendar-header {
+  background-color: #c62828;
+}
+
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #d32f2f;
+}
+
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(211, 47, 47, 0.2);
+}
+
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #d32f2f;
+}
+
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
+.dudp__wrapper[data-theme='red'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #b71c1c;
+}
+
+.dudp__wrapper[data-theme='red'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='red'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='red'] .dudp__years-view .dudp__year.selected {
+  color: #b71c1c;
+}
+
+.dudp__wrapper[data-theme='green'] .dudp__calendar-header {
+  background-color: #2e7d32;
+}
+
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #388e3c;
+}
+
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(56, 142, 60, 0.2);
+}
+
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #388e3c;
+}
+
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
+.dudp__wrapper[data-theme='green'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #1b5e20;
+}
+
+.dudp__wrapper[data-theme='green'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='green'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='green'] .dudp__years-view .dudp__year.selected {
+  color: #1b5e20;
+}
+
+.dudp__wrapper[data-theme='blue'] .dudp__calendar-header {
+  background-color: #1565c0;
+}
+
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #1976d2;
+}
+
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(25, 118, 210, 0.2);
+}
+
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #1976d2;
+}
+
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
+.dudp__wrapper[data-theme='blue'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #0d47a1;
+}
+
+.dudp__wrapper[data-theme='blue'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='blue'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='blue'] .dudp__years-view .dudp__year.selected {
+  color: #0d47a1;
+}
+
+.dudp__wrapper[data-theme='teal'] .dudp__calendar-header {
+  background-color: #00695c;
+}
+
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #00796b;
+}
+
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(0, 121, 107, 0.2);
+}
+
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #00796b;
+}
+
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
+.dudp__wrapper[data-theme='teal'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #004d40;
+}
+
+.dudp__wrapper[data-theme='teal'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='teal'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='teal'] .dudp__years-view .dudp__year.selected {
+  color: #004d40;
+}
+
+.dudp__wrapper[data-theme='purple'] .dudp__calendar-header {
+  background-color: #6a1b9a;
+}
+
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #7b1fa2;
+}
+
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(123, 31, 162, 0.2);
+}
+
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #7b1fa2;
+}
+
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
+.dudp__wrapper[data-theme='purple'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #4a148c;
+}
+
+.dudp__wrapper[data-theme='purple'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='purple'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='purple'] .dudp__years-view .dudp__year.selected {
+  color: #4a148c;
+}
+
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar-header {
+  background-color: #283593;
+}
+
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #303f9f;
+}
+
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.in-range,
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.range-from,
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(48, 63, 159, 0.2);
+}
+
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before,
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before,
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #303f9f;
+}
+
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before,
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before,
+.dudp__wrapper[data-theme='indigo'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #1a237e;
+}
+
+.dudp__wrapper[data-theme='indigo'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='indigo'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='indigo'] .dudp__years-view .dudp__year.selected {
+  color: #1a237e;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar-header {
+  background-color: #121212;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.current {
+  color: #1976d2;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.in-range, .dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.range-from, .dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.range-to {
+  background-color: rgba(25, 118, 210, 0.2);
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.selected:before, .dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:before, .dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:before {
+  background-color: #1976d2;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.selected:hover:before, .dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.range-from:hover:before, .dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.range-to:hover:before {
+  background-color: #0d47a1;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date.disabled {
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container,
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__years-view {
+  background-color: #1D1D1D;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-prev,
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-next,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-month-year,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__weekdays span,
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month:not(.selected),
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year:not(.selected),
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__pm,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__nm {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button,
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month.selected,
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year.selected {
+  color: #0d47a1;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button.clear {
+  color: #ef5350 !important;
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-prev:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-next:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year:hover,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):not(.range-from):not(.range-to):hover:before {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-prev:active,
+.dudp__wrapper[data-theme='dark'] .dudp__cal-container .dudp__btn-cal-next:active,
+.dudp__wrapper[data-theme='dark'] .dudp__buttons .dudp__button:active,
+.dudp__wrapper[data-theme='dark'] .dudp__months-view .dudp__month:active,
+.dudp__wrapper[data-theme='dark'] .dudp__years-view .dudp__year:active,
+.dudp__wrapper[data-theme='dark'] .dudp__calendar .dudp__cal-week .dudp__date:not(.disabled):not(.selected):not(.range-from):not(.range-to):active:before {
+  background-color: rgba(255, 255, 255, 0.1);
+}
