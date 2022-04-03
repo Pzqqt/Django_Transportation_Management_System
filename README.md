@@ -33,6 +33,18 @@
   - django-debug-toolbar （用于调试）
   - django-extensions （用于增强`manage.py`的功能）
 
+## Usage
+
+- 克隆仓库
+- 安装并配置好MySQL，过程不再赘述
+- 编辑`PPWuliu/settings.py`，手动配置以下这些项目：
+  - SECRET_KEY
+  - DATABASES
+- 手动创建数据库（数据库名称与`PPWuliu/settings.py`中`DATABASES`所配置的一致）
+- 导入测试数据：运行`init_database.sh`（测试数据中的账号密码：见此文件）
+- 运行`manage.py runserver`
+- Django的Admin管理后台是默认启用的，请自行创建超级用户
+
 ## 预览
 
 ![](screenshots/P0.jpg)
