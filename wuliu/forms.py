@@ -373,8 +373,6 @@ class WaybillSearchForm(_FormBase):
             # 若指定了某部门, 则直接按该部门筛选
             r_queryset = r_queryset.filter(src_department=form_dic["src_department"])
         elif form_dic["src_department_group"]:
-            # 若指定为全部分公司/分理处, 则按全部分公司/分理处筛选
-            # 若未指定(全部)则不必再进行筛选
             r_queryset = r_queryset.filter(
                 src_department__father_department__name=(
                     DEPARTMENT_GROUP_CHOICES.get(form_dic["src_department_group"])
@@ -794,7 +792,7 @@ class DepartmentPaymentAddForm(_FormBase):
         Department.objects.filter_is_branch(), required=False, label="回款部门",
     )
     src_department_group = forms.ChoiceField(
-        label="-", choices=((0, "全部分支机构"), (1, "全部分公司"), (2, "全部分理处")), initial=0,
+        label="-", choices=tuple(DEPARTMENT_GROUP_CHOICES.items()), initial=0,
     )
     dst_department = forms.ModelChoiceField(Department.objects.all(), label="收款部门")
     payment_date = forms.DateField(
@@ -907,8 +905,6 @@ class DepartmentPaymentSearchForm(_FormBase):
             # 若指定了某部门, 则直接按该部门筛选
             r_queryset = r_queryset.filter(src_department=form_dic["src_department"])
         elif form_dic["src_department_group"]:
-            # 若指定为全部分公司/分理处, 则按全部分公司/分理处筛选
-            # 若未指定(全部)则不必再进行筛选
             r_queryset = r_queryset.filter(
                 src_department__father_department__name=(
                     DEPARTMENT_GROUP_CHOICES.get(form_dic["src_department_group"])
