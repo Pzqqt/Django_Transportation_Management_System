@@ -17,7 +17,7 @@ diff --git a/wuliu/common.py b/wuliu/common.py
 index f29db03..56fa551 100644
 --- a/wuliu/common.py
 +++ b/wuliu/common.py
-@@ -46,7 +46,8 @@ def is_logged_user_is_goods_yard(request) -> bool:
+@@ -46,7 +46,7 @@ def is_logged_user_is_goods_yard(request) -> bool:
      """ 判断已登录的用户是否属于货场 """
      return get_logged_user_type(request) == User.Types.GoodsYard
  
@@ -26,7 +26,7 @@ index f29db03..56fa551 100644
      """ 根据所有的权限组和权限的层级结构生成列表, 用于前端渲染 """
      tree_list = []
      for pg in PermissionGroup.objects.filter(father=root_pg_):
-@@ -59,7 +60,8 @@ def _gen_permission_tree_list(root_pg_=PermissionGroup.objects.get(father__isnul
+@@ -59,7 +59,7 @@ def _gen_permission_tree_list(root_pg_=PermissionGroup.objects.get(father__isnul
          })
      return tree_list
  
@@ -36,17 +36,17 @@ index f29db03..56fa551 100644
  def login_required(raise_404=False):
      """ 自定义装饰器, 用于装饰路由方法
 diff --git a/wuliu/urls.py b/wuliu/urls.py
-index 92406c3..796b2da 100644
+index 92406c3..8c5aa12 100644
 --- a/wuliu/urls.py
 +++ b/wuliu/urls.py
-@@ -1,6 +1,6 @@
+@@ -1,6 +1,5 @@
  from django.urls import path, include
  
 -from . import views, apis
  
  # Unused
  def easy_path(view_func):
-@@ -8,6 +8,8 @@ def easy_path(view_func):
+@@ -8,6 +7,8 @@ def easy_path(view_func):
      return path(view_func.__name__, view_func, name=view_func.__name__)
  
  app_name = "wuliu"
@@ -55,7 +55,7 @@ index 92406c3..796b2da 100644
  urlpatterns = [
      # 登录
      path("login", views.login, name="login"),
-@@ -136,3 +138,4 @@ urlpatterns = [
+@@ -136,3 +137,4 @@ urlpatterns = [
          ])),
      ])),
  ]
