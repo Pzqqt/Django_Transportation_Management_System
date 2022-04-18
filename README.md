@@ -37,11 +37,16 @@
 
 - 克隆仓库
 - 安装并配置好MySQL，过程不再赘述
+- cd到项目所在目录
+- 同步AdminLTE-3.0.5：
+  - 运行`git submodule init`
+  - 运行`git submodule update --depth=1`
 - 编辑`PPWuliu/settings.py`，手动配置以下这些项目：
   - SECRET_KEY
   - DATABASES
 - 手动创建数据库（数据库名称与`PPWuliu/settings.py`中`DATABASES`所配置的一致）
 - 导入测试数据：运行`init_database.sh`（测试数据中的账号密码：见此文件）
+> 注意：在Windows环境下运行执行此shell脚本是不可能的（使用Git For Windows自带的mingw64执行也不行，会在`git apply`之后异常退出且没有任何提示），如果你一定要在Windows系统下运行此项目，请阅读`init_database.sh`并手动运行这些命令。
 - 运行`manage.py runserver`
 - Django的Admin管理后台是默认启用的，请自行创建超级用户
 
