@@ -12,6 +12,9 @@
 
 set -e
 
+# 临时修改项目中的一些代码
+# 这是进行数据库迁移前必要的步骤
+# 否则会提示某些表不存在
 cat <<EOF | git apply
 diff --git a/wuliu/common.py b/wuliu/common.py
 index f29db03..56fa551 100644
@@ -62,9 +65,12 @@ index 92406c3..8c5aa12 100644
 +'''
 EOF
 
+# 进行数据库迁移
 python3 ./manage.py migrate
+# 开始导入测试数据
 python3 ./manage.py loaddata init_data.json
 
+# 将wuliu目录下的文件还原到修改之前的状态
 git checkout -- ./wuliu
 
 echo "Done!"
