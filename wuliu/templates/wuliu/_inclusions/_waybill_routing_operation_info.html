@@ -1,0 +1,21 @@
+{% if wr.operation_type == WB_STATUSES.Created %}
+  {% if wr.waybill.return_waybill %}
+    该运单为退货运单，退货原因【{{ wr.operation_info.return_reason|default:"Unknown" }}】，原始运单【<a href="{% url "wuliu:detail_waybill" wr.waybill.return_waybill_id %}">{{ wr.waybill.return_waybill.get_full_id }}</a>】
+  {% else %}
+    货物已由【{{ wr.operation_user.name }}】揽收，运单号【{{ wr.waybill.get_full_id }}】
+  {% endif %}
+{% elif wr.operation_type == WB_STATUSES.Departed or wr.operation_type == WB_STATUSES.GoodsYardDeparted %}
+  {% if transport_out %}
+    货物已由【{{ transport_out.src_department }}】发往【{{ transport_out.dst_department }}】，车次编号【<a href="{% url "wuliu:detail_transport_out" %}?transport_out_id={{ transport_out.id }}">{{ transport_out.get_full_id }}</a>】，车牌号【{{ transport_out.truck.number_plate }}】驾驶员【{{ transport_out.driver_name }}】电话【{{ transport_out.driver_phone }}】
+  {% endif %}
+{% elif wr.operation_type == WB_STATUSES.GoodsYardArrived or wr.operation_type == WB_STATUSES.Arrived %}
+    货物已由【{{ wr.operation_user.name }}】卸车入库
+{% elif wr.operation_type == WB_STATUSES.SignedFor %}
+    货物已由【{{ wr.waybill.sign_for_customer_name }}】签收，签收人身份证号【{{ wr.waybill.sign_for_customer_credential_num }}】
+{% elif wr.operation_type == WB_STATUSES.Returned %}
+  {% if return_waybill %}
+    由于【{{ wr.operation_info.return_reason|default:"Unknown" }}】，客户要求退货，退货运单【<a href="{% url 'wuliu:detail_waybill' return_waybill.id %}">{{ return_waybill.get_full_id }}</a>】
+  {% endif %}
+{% elif wr.operation_type == WB_STATUSES.Dropped %}
+    运单已作废，作废原因【{{ wr.waybill.drop_reason }}】
+{% endif %}

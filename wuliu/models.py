@@ -1,6 +1,5 @@
 import datetime as datetime_
 import math
-import re
 from collections import defaultdict
 
 from django.db import models, transaction
@@ -9,10 +8,8 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 from django.core.validators import MinValueValidator, validate_slug
 from django.core.exceptions import ValidationError
-from django.urls import reverse
+from django.template.loader import render_to_string
 from django.utils.functional import cached_property
-from django.utils.safestring import mark_safe
-from django.utils.http import urlencode
 from django.utils.html import strip_tags
 
 from utils.common import UnescapedDjangoJSONEncoder, ExpireLruCache
@@ -562,74 +559,31 @@ class WaybillRouting(models.Model):
             self.waybill.get_full_id, self.get_operation_type_display()
         )
 
+    def _template_context(self) -> dict:
+        wr_transport_out = None
+        wr_return_waybill = None
+        if self.operation_type in (Waybill.Statuses.GoodsYardDeparted, Waybill.Statuses.Departed):
+            wr_transport_out_id = self.operation_info.get("transport_out_id")
+            if wr_transport_out_id:
+                wr_transport_out = TransportOut.objects.get(id=wr_transport_out_id)
+        elif self.operation_type == Waybill.Statuses.Returned:
+            wr_return_waybill_id = self.operation_info.get("return_waybill_id")
+            if wr_return_waybill_id:
+                wr_return_waybill = Waybill.objects.get(id=wr_return_waybill_id)
+        return {
+            "wr": self,
+            "WB_STATUSES": Waybill.Statuses,
+            "transport_out": wr_transport_out,
+            "return_waybill": wr_return_waybill,
+        }
+
     def gen_print_operation_info(self) -> str:
         """ 生成运单路由的详细文本内容 """
-        operation_info_string = ""
-        if self.operation_type == Waybill.Statuses.Created:
-            if self.waybill.return_waybill:
-                operation_info_string = (
-                    '该运单为退货运单，退货原因【{return_reason}】，原始运单'
-                    '【<a href="{stock_waybill_url}">{stock_waybill_full_id}</a>】'.format(
-                        return_reason=self.operation_info.get("return_reason", "Unknown"),
-                        stock_waybill_url=reverse("wuliu:detail_waybill", args=[self.waybill.return_waybill_id, ]),
-                        stock_waybill_full_id=self.waybill.return_waybill.get_full_id,
-                    )
-                )
-            else:
-                operation_info_string = "货物已由【{user_name}】揽收，运单号【{waybill}】".format(
-                    user_name=self.operation_user.name, waybill=self.waybill.get_full_id,
-                )
-        elif self.operation_type in (Waybill.Statuses.Departed, Waybill.Statuses.GoodsYardDeparted):
-            try:
-                transport_out_id = self.operation_info["transport_out_id"]
-            except KeyError:
-                pass
-            else:
-                transport_out = TransportOut.objects.get(id=transport_out_id)
-                operation_info_string = (
-                    '货物已由【{src_department}】发往【{dst_department}】，车次编号'
-                    '【<a href="{transport_out_url}">{transport_out_full_id}</a>】，'
-                    '车牌号【{truck_number_plate}】驾驶员【{driver_name}】电话【{driver_phone}】'.format(
-                        src_department=transport_out.src_department,
-                        dst_department=transport_out.dst_department,
-                        transport_out_url="%s?%s" % (
-                            reverse("wuliu:detail_transport_out"), urlencode({"transport_out_id": transport_out_id})
-                        ),
-                        transport_out_full_id=transport_out.get_full_id,
-                        truck_number_plate=transport_out.truck.number_plate,
-                        driver_name=transport_out.driver_name,
-                        driver_phone=transport_out.driver_phone,
-                    )
-                )
-        elif self.operation_type in (Waybill.Statuses.GoodsYardArrived, Waybill.Statuses.Arrived):
-            operation_info_string = "货物已由【{user_name}】卸车入库".format(user_name=self.operation_user.name)
-        elif self.operation_type == Waybill.Statuses.SignedFor:
-            operation_info_string = "货物已由【{sign_for_name}】签收，签收人身份证号【{sign_for_credential_num}】".format(
-                sign_for_name=self.waybill.sign_for_customer_name,
-                sign_for_credential_num=self.waybill.sign_for_customer_credential_num,
-            )
-        elif self.operation_type == Waybill.Statuses.Returned:
-            try:
-                return_waybill_id = self.operation_info["return_waybill_id"]
-            except KeyError:
-                pass
-            else:
-                return_waybill = Waybill.objects.get(id=return_waybill_id)
-                operation_info_string = "由于【{return_reason}】，客户要求退货，退货运单【{return_waybill}】".format(
-                    return_reason=self.operation_info.get("return_reason", "Unknown"),
-                    return_waybill='<a href="%s">%s</a>' % (
-                        reverse("wuliu:detail_waybill", args=[return_waybill_id, ]),
-                        return_waybill.get_full_id,
-                    )
-                )
-        elif self.operation_type == Waybill.Statuses.Dropped:
-            operation_info_string = "运单已作废，作废原因【{drop_reason}】".format(
-                drop_reason=self.waybill.drop_reason
-            )
-        else:
-            raise ValueError("Unknown operation_type: %s" % self.operation_type)
-        # 去除字符串中的大括号, 避免模板渲染出错
-        return mark_safe(re.sub(r'[{}]', '', operation_info_string))
+        operation_info_string = render_to_string(
+            "wuliu/_inclusions/_waybill_routing_operation_info.html",
+            self._template_context(),
+        )
+        return operation_info_string.strip()
 
     def gen_print_operation_info_text(self) -> str:
         """ 生成运单路由的详细文本内容(移除html标签) """

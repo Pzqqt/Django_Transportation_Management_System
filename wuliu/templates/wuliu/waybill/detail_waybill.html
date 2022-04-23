@@ -1,4 +1,5 @@
 {% extends "wuliu/waybill/_layout_edit_waybill.html" %}
+{% load show_waybill_routing_operation_info from wuliu_extras %}
 {% block title %}运单详情{% endblock %}
 {% block header_title %}运单详情{% endblock %}
               {% block content_header %}
@@ -57,7 +58,7 @@
                                                 <td>{{ rt.get_operation_type_display }}</td>
                                                 <td>{{ rt.operation_dept.name }}</td>
                                                 <td>{{ rt.operation_user.name }}</td>
-                                                <td>{{ rt.gen_print_operation_info }}</td>
+                                                <td>{% show_waybill_routing_operation_info rt %}</td>
                                             </tr>
                                           {% endfor %}
                                         </tbody>

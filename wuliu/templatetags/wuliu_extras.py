@@ -4,7 +4,7 @@ from django.forms.fields import ChoiceField
 from django.contrib.messages import constants
 
 from ..common import get_global_settings, is_logged_user_has_perm, get_logged_user, PERMISSION_TREE_LIST
-
+from ..models import WaybillRouting
 
 register = template.Library()
 
@@ -214,6 +214,13 @@ def show_form_input_field_with_append_select(field, field_append, label="", div_
         "label": label,
         "div_class": div_class
     }
+
+@register.inclusion_tag('wuliu/_inclusions/_waybill_routing_operation_info.html')
+def show_waybill_routing_operation_info(wr: WaybillRouting):
+    """ 生成运单路由的详细文本内容
+    :param wr: WaybillRouting对象
+    """
+    return wr._template_context()
 
 @register.inclusion_tag('wuliu/_inclusions/_tables/_waybill_table.html')
 def show_waybill_table(waybills_info_list, table_id, have_check_box=True, high_light_fee=False, high_light_dept_id=-1):
