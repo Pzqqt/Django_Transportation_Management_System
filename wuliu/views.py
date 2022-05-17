@@ -391,6 +391,44 @@ def manage_users(request):
         return redirect("wuliu:manage_users")
 
 @check_administrator
+def add_user(request):
+    if request.method == "GET":
+        return render(
+            request,
+            "wuliu/settings/user/add_user.html",
+            {"form": forms.UserForm()},
+        )
+    if request.method == "POST":
+        form = forms.UserForm(request.POST)
+        custom_error_messages = []
+
+        def _failed():
+            messages.error(
+                request,
+                mark_safe("<br>".join([
+                    "提交失败！",
+                    *["%s: %s" % (k, "".join(v)) for k, v in form.errors.items()],
+                    *custom_error_messages,
+                ])),
+            )
+            return redirect("wuliu:add_user")
+
+        if not form.is_valid():
+            return _failed()
+        form_cleaned_data = form.cleaned_data
+        # 不需要检查用户名是否已被占用, form.is_valid时就已经检查了
+        form.instance.password = make_password(form_cleaned_data["password"])
+        try:
+            with transaction.atomic():
+                new_user = form.save()
+        except Exception as e:
+            got_request_exception.send(None, request=request)
+            custom_error_messages.append(str(e))
+            return _failed()
+        messages.success(request, "用户 %s 新增成功！请为该用户分配权限。" % new_user.name)
+        return redirect("wuliu:manage_users")
+
+@check_administrator
 def manage_user_permission(request):
     if request.method == "GET":
         return render(

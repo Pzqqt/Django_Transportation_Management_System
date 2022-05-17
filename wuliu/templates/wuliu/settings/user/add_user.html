@@ -1,0 +1,64 @@
+{% extends "wuliu/_layout.html" %}
+{% load static %}
+{% load wuliu_extras %}
+{% block title %}添加用户{% endblock %}
+{% block header_title %}添加用户{% endblock %}
+{% block head_append_js %}
+  <script src="{% static 'AdminLTE-3.0.5/plugins/bootstrap-switch/js/bootstrap-switch.min.js' %}"></script>
+{% endblock %}
+
+          {% block content %}
+            <form action="{% url 'wuliu:add_user' %}" id="form-add_user" class="form col-12" method="post">
+                {% csrf_token %}
+                <fieldset>
+                    <div class="row align-items-end">
+                      {% show_form_input_field form.name "用户名" "col-12 col-md-7" %}
+                      {% show_form_input_field form.password "" "col-12 col-md-7 mb-1" %}
+                      {% show_form_input_field form.password_again "" "col-12 col-md-7 mb-1" %}
+                        <div class="col-12 col-md-5 align-self-end text-md">
+                            <span id="password_again_note"></span>
+                        </div>
+                        <div class="col-12 d-flex flex-column flex-md-row">
+                            <div class="mt-1">
+                                {{ form.enabled }} <span class="mx-1">该用户，</span>
+                            </div>
+                            <div class="mt-1">
+                                {{ form.administrator }} <span class="ml-1">管理员。</span>
+                            </div>
+                        </div>
+                      {% show_form_input_field form.department "" "col-12 col-md-7" %}
+                    </div>
+                </fieldset>
+                <button class="btn btn-primary mt-2" type="submit">保存</button>
+            </form>
+<script>
+$(document).ready(function() {
+  $("input[data-bootstrap-switch]").each(function() {
+    $(this).bootstrapSwitch();
+  });
+  let password_flag = false;
+  let jq_password = '#form-add_user [name="password"]';
+  let jq_password_again = '#form-add_user [name="password_again"]';
+  $(jq_password + ', ' + jq_password_again).change(function() {
+    let new_password = $(jq_password).val().trim();
+    let new_password_again = $(jq_password_again).val().trim();
+    if (new_password && new_password_again) {
+      if (new_password === new_password_again) {
+        $("#password_again_note").html('<i class="ri-checkbox-circle-fill"></i>').attr("class", "text-success");
+        password_flag = true;
+      } else {
+        $("#password_again_note").html('<i class="ri-close-circle-fill"></i> 两次输入的密码不一致！').attr("class", "text-danger");
+        password_flag = false;
+      }
+    } else {
+      $("#password_again_note").html("");
+      password_flag = false;
+    }
+  });
+  $("#form-add_user").submit(function(e) {
+    if (! password_flag)
+      e.preventDefault();
+  })
+});
+</script>
+          {% endblock %}

@@ -1270,6 +1270,28 @@ class ManageUsers(_FormBase):
             "data-bootstrap-switch": "",
         }
 
+class UserForm(_ModelFormBase):
+    password_again = forms.CharField(label="再次输入密码", widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["password"].widget.input_type = "password"
+        self.fields["enabled"].widget.attrs |= {
+            "data-on-text": "启用",
+            "data-off-text": "禁用",
+            "checked": "",
+            "data-bootstrap-switch": "",
+        }
+        self.fields["administrator"].widget.attrs |= {
+            "data-on-text": "属于",
+            "data-off-text": "不属于",
+            "data-bootstrap-switch": "",
+        }
+
+    class Meta:
+        model = User
+        fields = ["name", "password", "enabled", "administrator", "department"]
+
 class ManageUserPermission(_FormBase):
     user = forms.ModelChoiceField(User.objects.all(), required=False, label="用户")
     permission = forms.ModelMultipleChoiceField(Permission.objects.all(), label="权限", required=False)

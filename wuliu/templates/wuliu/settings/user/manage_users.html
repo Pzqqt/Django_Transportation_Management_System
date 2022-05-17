@@ -14,9 +14,7 @@
                     <div class="row align-items-end">
                       {% show_form_input_field form.user "选择用户" "col-12 col-md-5 mb-1" %}
                         <div class="col-12 col-md-2">
-                          {% comment "TODO: 实现添加用户的功能" %}
-                            <a class="btn btn-primary mr-2" href="#" style="margin-bottom: 0.375rem;">添加用户</a>
-                          {% endcomment %}
+                            <a class="btn btn-primary mr-2" href="{% url 'wuliu:add_user' %}" style="margin-bottom: 0.375rem;">添加用户</a>
                         </div>
                         <div class="col-12 d-flex flex-column flex-md-row">
                             <div class="mt-1">

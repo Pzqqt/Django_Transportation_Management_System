@@ -18,6 +18,7 @@ urlpatterns = [
     # 系统设置
     path("settings/", include([
         path("manage_users", views.manage_users, name="manage_users"),
+        path("add_user", views.add_user, name="add_user"),
         path("manage_user_permission", views.manage_user_permission, name="manage_user_permission"),
         path("batch_edit_user_permission", views.batch_edit_user_permission, name="batch_edit_user_permission"),
     ])),
