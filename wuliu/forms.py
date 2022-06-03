@@ -498,7 +498,7 @@ class TransportOutForm(_ModelFormBase):
         # 对于任何用户, 发车部门只能选择用户所属部门
         form_obj.fields["src_department"].queryset = Department.objects.filter(id=user.department_id)
         # 货场只能发车到分支机构
-        if user_type == User.Types.Branch:
+        if user_type == User.Types.GoodsYard:
             form_obj.fields["dst_department"].queryset = Department.objects.filter_is_branch()
         # 其他任何部门都只能发车到货场
         else:
