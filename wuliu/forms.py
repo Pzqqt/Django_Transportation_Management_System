@@ -1052,6 +1052,7 @@ class CustomerScoreLogFrom(_ModelFormBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._logged_in_user = None
         # 只能选择会员客户, 且必须为启用状态
         self.fields["customer"].queryset = Customer.objects.filter(enabled=True, is_vip=True)
 
@@ -1070,13 +1071,11 @@ class CustomerScoreLogFrom(_ModelFormBase):
         }
 
     def save(self, *args, **kwargs):
-        try:
-            self.instance.user = self._logged_in_user
-        except AttributeError:
-            raise AttributeError(
-                "应该从%s.init_from_request方法初始化表单, 以携带当前登录的用户信息." % self.__class__.__name__
-            )
-        assert self.instance.user.has_perm("customer_score_log__add"), "你没有变更积分的权限."
+        assert self._logged_in_user is not None, (
+            "应该从%s.init_from_request方法初始化表单, 以携带当前登录的用户信息." % self.__class__.__name__
+        )
+        assert self._logged_in_user.has_perm("customer_score_log__add"), "你没有变更积分的权限."
+        self.instance.user = self._logged_in_user
         customer = self.instance.customer
         assert customer.is_vip, '客户"%s"不是会员客户.' % customer.name
         assert customer.enabled, '会员客户"%s"没有启用.' % customer.name
