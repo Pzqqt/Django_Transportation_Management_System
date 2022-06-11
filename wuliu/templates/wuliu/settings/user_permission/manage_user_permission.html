@@ -14,12 +14,14 @@
                             <button class="btn btn-primary mr-2" id="button_commit" style="margin-bottom: 0.125rem;">保存</button>
                         </div>
                       {% show_form_input_field form.permission %}
+                      {% show_form_input_field form.permission_source_user %}
                     </div>
                     <legend class="row">权限</legend>
                 </fieldset>
             </form>
             <div class="col-12 col-md-6">
-                <a class="btn btn-primary" href="{% url 'wuliu:batch_edit_user_permission' %}">批量修改用户权限</a>
+                <a class="btn btn-primary mr-2" href="{% url 'wuliu:batch_edit_user_permission' %}">批量修改用户权限</a>
+                <button class="btn btn-primary" id="button-select_src_perm_user">复制权限</button>
               {% cache 300 "full_permission_tree" %}
                 {% show_full_permission_tree "permission_tree" %}
               {% endcache %}
@@ -38,6 +40,44 @@ $(document).ready(function() {
         }
       });
     }
+  });
+  $("#button-select_src_perm_user").click(function() {
+    if (! $("#form-manage_user_permission [name='user']").val()) {
+      mdtoast_error("你没有选择任何用户。");
+      return;
+    }
+    new duDialog(
+      "复制该用户的权限",
+      [
+        {% for user in form.fields.user.queryset %}
+          { name: "{{ user }}", id: "{{ user.id }}", short_name: "{{ user.name }}"},
+        {% endfor %}
+      ],
+      {
+        selection: true,
+        textField: 'name',
+        valueField: 'id',
+        callbacks: {
+          itemSelect: function(e, i){
+            if (i.id === $("#form-manage_user_permission [name='user']").val()) {
+              mdtoast_error("选择的用户不能相同。");
+              return;
+            }
+            confirm_dialog(
+              "确认复制",
+              "你确定要复制 " + i.short_name + " 的权限到该用户吗？",
+              {
+                okClick: function() {
+                  this.hide();
+                  $("#form-manage_user_permission [name='permission_source_user']").val(i.id);
+                  $("#form-manage_user_permission").submit();
+                }
+              }
+            );
+          }
+        },
+      },
+    );
   });
   $("#button_commit").click(function(e) {
     if (! $("#form-manage_user_permission [name='user']").val()) {

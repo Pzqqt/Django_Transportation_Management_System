@@ -1294,10 +1294,12 @@ class UserForm(_ModelFormBase):
 class ManageUserPermission(_FormBase):
     user = forms.ModelChoiceField(User.objects.all(), required=False, label="用户")
     permission = forms.ModelMultipleChoiceField(Permission.objects.all(), label="权限", required=False)
+    permission_source_user = forms.ModelChoiceField(User.objects.all(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["permission"].widget.attrs["hidden"] = True
+        self.fields["permission_source_user"].widget.attrs["hidden"] = True
 
 class BatchEditUserPermission(ManageUserPermission):
     user = forms.ModelMultipleChoiceField(User.objects.all(), label="用户")

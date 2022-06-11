@@ -455,7 +455,11 @@ def manage_user_permission(request):
             return _failed()
         form_cleaned_data = form.cleaned_data
         user = form_cleaned_data["user"]
-        permission_queryset = form_cleaned_data["permission"]
+        permission_source_user = form_cleaned_data["permission_source_user"]
+        if permission_source_user:
+            permission_queryset = permission_source_user.permission.all()
+        else:
+            permission_queryset = form_cleaned_data["permission"]
         try:
             with transaction.atomic():
                 user.permission.set(permission_queryset)
