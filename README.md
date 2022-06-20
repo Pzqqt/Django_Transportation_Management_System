@@ -25,6 +25,8 @@
 
 ## 依赖
 
+- 要求Python最低版本：v3.9+
+
 - 必要的第三方库
   - django
   - mysqlclient
