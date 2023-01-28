@@ -18,7 +18,7 @@ get_global_settings = expire_lru_cache_three_hours(_get_global_settings)
 
 @expire_lru_cache_one_minute
 def _get_logged_user_by_id(user_id: int) -> User:
-    """ 根据用户名返回用户模型对象 """
+    """ 根据用户id返回用户模型对象 """
     return User.objects.get(id=user_id)
 
 def get_logged_user(request) -> User:
