@@ -1023,7 +1023,7 @@ class CargoPricePaymentSearchForm(_FormBase):
                     timezone.datetime.combine(create_date_end, datetime_.time(23, 59, 59))
                 ),
             )
-        elif form_dic["settle_accounts_start"] or form_dic["settle_accounts_end"]:
+        elif form_dic["settle_accounts_date_start"] or form_dic["settle_accounts_date_end"]:
             settle_accounts_date_start = form_dic["settle_accounts_date_start"] or DATA_MIN
             settle_accounts_date_end = form_dic["settle_accounts_date_end"] or datetime_.date.today()
             r_queryset = r_queryset.filter(
