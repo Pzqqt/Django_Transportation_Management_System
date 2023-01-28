@@ -74,8 +74,6 @@ class WaybillForm(_ModelFormBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # 不允许发货部门选择空值
-        self.fields["src_department"].empty_label = None
         # 到达部门只能选择分支机构, 如果该部门的单价字段不为零就认为是分支机构
         self.fields["dst_department"].queryset = Department.objects.filter_is_branch()
         # 只显示已启用的客户
@@ -132,6 +130,10 @@ class WaybillForm(_ModelFormBase):
         form_obj.fields["src_department"].queryset = Department.objects.filter_is_branch().filter(
             id=request.session["user"]["department_id"], enable_src=True,
         )
+        # 如果有可选的发货部门, 则不允许发货部门选择空值 (默认有且只有一个可选项, 就是用户所属的部门)
+        # 如果没有任何可选的发货部门, 则允许发货部门选择空值, 否则前端提交的form中将缺少src_department字段, 引发一系列异常
+        if list(form_obj.fields["src_department"].queryset):
+            form_obj.fields["src_department"].empty_label = None
         return form_obj
 
     def add_id_field(self, id_: int, id_full: str):
