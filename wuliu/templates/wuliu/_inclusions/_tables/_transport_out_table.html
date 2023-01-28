@@ -47,9 +47,9 @@
                 <td data-key="to_driver_name">{{ transport_out.driver_name }}</td>
                 <td data-key="to_driver_phone">{{ transport_out.driver_phone }}</td>
                 <td data-key="to_total_num">{{ transport_out.total_num }}</td>
-                <td data-key="to_total_cargo_num">{{ transport_out.total_cargo_num }}</td>
-                <td data-key="to_total_cargo_volume">{{ transport_out.total_cargo_volume | floatformat:2 }}</td>
-                <td data-key="to_total_cargo_weight">{{ transport_out.total_cargo_weight | floatformat }}</td>
+                <td data-key="to_total_cargo_num">{{ transport_out.total_cargo_num | default_if_none:0 }}</td>
+                <td data-key="to_total_cargo_volume">{{ transport_out.total_cargo_volume | default_if_none:0 | floatformat:2 }}</td>
+                <td data-key="to_total_cargo_weight">{{ transport_out.total_cargo_weight | default_if_none:0 | floatformat }}</td>
             </tr>
           {% endfor %}
         </tbody>
