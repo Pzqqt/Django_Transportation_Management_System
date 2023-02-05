@@ -136,9 +136,7 @@ class Department(models.Model):
         """ 新增了两个自定义的查询方法 """
 
         def filter_is_branch(self):
-            """ 如果该部门的单价字段不为零就认为是分支机构 """
-            return self.filter(unit_price__gt=0)
-            # return self.filter(father_department__is_branch_group=True)
+            return self.filter(father_department__is_branch_group=True)
 
         def filter_is_goods_yard(self):
             return self.filter(name="货场")
@@ -170,11 +168,10 @@ class Department(models.Model):
         """ 是否是货场 """
         return self.name == "货场"
 
+    @_EXPIRE_LRU_CACHE_5MIN
     def is_branch(self) -> bool:
         """ 是否属于分支机构 """
-        # return self.father_department.is_branch_group
-        # 使用一种更简单的方法, 如果该部门的单价字段不为零就认为是分支机构, 避免多次查询数据库
-        return bool(self.unit_price)
+        return self.father_department.is_branch_group
 
     is_branch.admin_order_field = "father_department"
     is_branch.boolean = True
