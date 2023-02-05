@@ -15,6 +15,8 @@ from django.utils.html import strip_tags
 from utils.common import UnescapedDjangoJSONEncoder, ExpireLruCache
 
 
+_EXPIRE_LRU_CACHE_5MIN = ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
+
 def _validate_handling_fee_ratio(value):
     if value <= 0 or value > 1:
         raise ValidationError("手续费比例必须大于0且小于等于1！")
@@ -83,7 +85,7 @@ class PermissionGroup(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    @ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
+    @_EXPIRE_LRU_CACHE_5MIN
     def tree_str(self) -> str:
         return "%s %s" % (
             self.father.tree_str() + " -" if self.father is not None else "",
@@ -109,7 +111,7 @@ class Permission(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    @ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
+    @_EXPIRE_LRU_CACHE_5MIN
     def tree_str(self) -> str:
         return "%s - %s" % (self.father.tree_str(), self.print_name)
 
@@ -179,13 +181,13 @@ class Department(models.Model):
     is_branch.short_description = "分支机构"
 
     @staticmethod
-    @ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
+    @_EXPIRE_LRU_CACHE_5MIN
     def get_name_by_id(dept_id):
         """ 通过部门id获取部门名称 """
         # 由于User的__str__方法需要频繁获取部门名称, 因此通过添加一个额外的类方法并用缓存装饰器装饰以减少开销
         return Department.objects.get(id=dept_id).name
 
-    @ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
+    @_EXPIRE_LRU_CACHE_5MIN
     def tree_str(self) -> str:
         return "%s %s" % (
             self.father_department.tree_str()+" -" if self.father_department is not None else "",
