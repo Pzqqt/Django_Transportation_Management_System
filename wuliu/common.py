@@ -11,12 +11,11 @@ from .models import (
 from utils.common import ExpireLruCache, model_to_dict_
 
 
-expire_lru_cache_three_hours = ExpireLruCache(expire_time=timezone.timedelta(hours=3))
-expire_lru_cache_one_minute = ExpireLruCache(expire_time=timezone.timedelta(minutes=1))
+_EXPIRE_LRU_CACHE_1MIN = ExpireLruCache(expire_time=timezone.timedelta(minutes=1))
 
-get_global_settings = expire_lru_cache_three_hours(_get_global_settings)
+get_global_settings = ExpireLruCache(expire_time=timezone.timedelta(hours=3))(_get_global_settings)
 
-@expire_lru_cache_one_minute
+@_EXPIRE_LRU_CACHE_1MIN
 def _get_logged_user_by_id(user_id: int) -> User:
     """ 根据用户id返回用户模型对象 """
     return User.objects.get(id=user_id)
@@ -29,7 +28,7 @@ def get_logged_user_type(request) -> User.Types:
     """ 获取已登录的用户的用户类型 """
     return get_logged_user(request).get_type
 
-@expire_lru_cache_one_minute
+@_EXPIRE_LRU_CACHE_1MIN
 def _get_user_permissions(user: User) -> set:
     """ 获取用户拥有的权限, 注意该方法返回的是集合而不是QuerySet """
     return set(user.permission.all().values_list("name", flat=True))
