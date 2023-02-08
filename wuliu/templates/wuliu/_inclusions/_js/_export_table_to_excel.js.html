@@ -16,11 +16,6 @@ $(document).ready(function() {
       let row_data = [];
       for (let index in {{ table_id }}_table.columns().header().toArray()) {
         row_data[index] = typeof(row[index]) == "string" ? row[index] : row[index].display;
-        if (typeof(row[index]) == "string") {
-          row_data[index] = row[index];
-        } else {
-          row_data[index] = row[index].display;
-        }
         if (row_data[index] && row_data[index][0] === "<")
           row_data[index] = $(row_data[index]).text();
         row_data[index] = row_data[index].trim()
@@ -30,6 +25,13 @@ $(document).ready(function() {
     let table_header = [];
     for (let header_info of {{ table_id }}_table.columns().header().toArray()) {
       table_header.push(header_info.innerText)
+    }
+    let table_rows_value_type = [];
+    for (let th of $('#{{ table_id }} > thead > tr > th').slice({{ skip_td_num }})) {
+      let value_type = $(th).attr("data-value_type");
+      if (value_type === undefined)
+        value_type = "str";
+      table_rows_value_type.push(value_type);
     }
     confirm_dialog(
       "导出", "确定要导出报表吗？",
@@ -42,6 +44,7 @@ $(document).ready(function() {
               "table_title": table_title,
               "table_header": JSON.stringify(table_header.slice({{ skip_td_num }})),
               "table_rows": JSON.stringify(table_rows),
+              "table_rows_value_type": JSON.stringify(table_rows_value_type),
             },
           )
           {{ table_id }}_latest_export_date = new Date();

@@ -17,17 +17,19 @@ def export_excel(request):
     table_title = request.POST.get("table_title")
     table_header = request.POST.get("table_header")
     table_rows = request.POST.get("table_rows")
+    table_rows_value_type = request.POST.get("table_rows_value_type", '[]')
     if not (table_title and table_header and table_rows):
         return HttpResponseBadRequest()
     try:
         table_header = json.loads(table_header)
         table_rows = json.loads(table_rows)
+        table_rows_value_type = json.loads(table_rows_value_type)
     except json.decoder.JSONDecodeError:
         if settings.DEBUG:
             raise
         return HttpResponseBadRequest()
     # 不能用FileResponse, 也不能用StreamingHttpResponse, 很奇怪
-    response = HttpResponse(gen_workbook(table_title, table_header, table_rows))
+    response = HttpResponse(gen_workbook(table_title, table_header, table_rows, table_rows_value_type))
     response["Content-Type"] = "application/octet-stream"
     # 此处必须编码为ansi, 否则filename有中文的话会乱码
     response["Content-Disposition"] = ('attachment; filename="%s.xlsx"' % table_title).encode("ansi")

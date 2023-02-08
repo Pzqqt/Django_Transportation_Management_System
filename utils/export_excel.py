@@ -29,13 +29,28 @@ def cell_right(cell_):
     """ 单元格水平居右&垂直居中 """
     cell_.alignment = _RIGHT
 
-def gen_workbook(title, thead, trs):
+def gen_workbook(title, thead, trs, trs_types=()):
     wb = Workbook()
     ws = wb.active
     ws.append([title, ])
     ws.append(thead)
     for tr in trs:
-        ws.append(tr)
+        _tr = []
+        for index, value in enumerate(tr):
+            try:
+                value_type = trs_types[index]
+            except IndexError:
+                value_type = "str"
+            if value_type == "str":
+                value = str(value)
+            elif value_type == "int":
+                value = int(value)
+            elif value_type == "float":
+                value = float(value)
+            else:
+                raise ValueError("无法解析的列数据类型: " + str(value_type))
+            _tr.append(value)
+        ws.append(_tr)
     # 合并首行(标题)
     ws.merge_cells("A1:%s1" % ws[2][-1].column_letter)
     # 给所有单元格设置居中+所有边框格式
@@ -55,7 +70,7 @@ def gen_workbook(title, thead, trs):
             cell_len = 0
             if not cell.value:
                 continue
-            for char in cell.value:
+            for char in str(cell.value):
                 if ord(char) <= 256:
                     cell_len += 1.3
                 else:
