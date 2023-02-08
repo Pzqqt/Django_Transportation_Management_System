@@ -159,7 +159,7 @@ def get_department_info(request):
     return api_json_response("success", 200, department_info={
         "name": department.name,
         "father_department": department.father_department.name,
-        "is_branch": department.is_branch(),
+        "is_branch": department.is_branch,
         "unit_price": department.unit_price,
         "enable_src": department.enable_src,
         "enable_dst": department.enable_dst,

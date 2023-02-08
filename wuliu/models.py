@@ -15,8 +15,6 @@ from django.utils.html import strip_tags
 from utils.common import UnescapedDjangoJSONEncoder, ExpireLruCache
 
 
-_EXPIRE_LRU_CACHE_5MIN = ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
-
 def _validate_handling_fee_ratio(value):
     if value <= 0 or value > 1:
         raise ValidationError("手续费比例必须大于0且小于等于1！")
@@ -85,10 +83,10 @@ class PermissionGroup(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    @_EXPIRE_LRU_CACHE_5MIN
+    @cached_property
     def tree_str(self) -> str:
         return "%s %s" % (
-            self.father.tree_str() + " -" if self.father is not None else "",
+            self.father.tree_str + " -" if self.father is not None else "",
             self.print_name,
         )
 
@@ -111,9 +109,9 @@ class Permission(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    @_EXPIRE_LRU_CACHE_5MIN
+    @cached_property
     def tree_str(self) -> str:
-        return "%s - %s" % (self.father.tree_str(), self.print_name)
+        return "%s - %s" % (self.father.tree_str, self.print_name)
 
     tree_str.short_description = "层级"
 
@@ -164,30 +162,31 @@ class Department(models.Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    @cached_property
     def is_goods_yard(self) -> bool:
         """ 是否是货场 """
         return self.name == "货场"
 
-    @_EXPIRE_LRU_CACHE_5MIN
+    @cached_property
     def is_branch(self) -> bool:
         """ 是否属于分支机构 """
-        return self.father_department.is_branch_group
+        return self.father_department.is_branch_group if self.father_department else False
 
     is_branch.admin_order_field = "father_department"
     is_branch.boolean = True
     is_branch.short_description = "分支机构"
 
     @staticmethod
-    @_EXPIRE_LRU_CACHE_5MIN
+    @ExpireLruCache(expire_time=timezone.timedelta(minutes=5))
     def get_name_by_id(dept_id):
         """ 通过部门id获取部门名称 """
         # 由于User的__str__方法需要频繁获取部门名称, 因此通过添加一个额外的类方法并用缓存装饰器装饰以减少开销
         return Department.objects.get(id=dept_id).name
 
-    @_EXPIRE_LRU_CACHE_5MIN
+    @cached_property
     def tree_str(self) -> str:
         return "%s %s" % (
-            self.father_department.tree_str()+" -" if self.father_department is not None else "",
+            self.father_department.tree_str+" -" if self.father_department is not None else "",
             self.name,
         )
 
@@ -233,8 +232,8 @@ class User(models.Model):
         """ 获取用户类型 """
         if self.administrator:
             return self.Types.Administrator
-        is_goods_yard = self.department.is_goods_yard()
-        is_branch = self.department.is_branch()
+        is_goods_yard = self.department.is_goods_yard
+        is_branch = self.department.is_branch
         assert not (is_goods_yard and is_branch), "货场部门不应该录入单价"
         if is_goods_yard:
             return self.Types.GoodsYard

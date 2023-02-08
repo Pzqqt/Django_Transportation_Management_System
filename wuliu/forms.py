@@ -531,10 +531,10 @@ class TransportOutForm(_ModelFormBase):
         assert form_dic["src_department"] == get_logged_user(request).department, "发车部门必须与登录用户所属部门一致"
         # 分支机构只能发车到货场, 货场只能发车到分支机构
         assert (
-            form_dic["dst_department"].is_goods_yard() if not logged_user_is_goods_yard else True
+            form_dic["dst_department"].is_goods_yard if not logged_user_is_goods_yard else True
         ), "分支机构只能发车到货场"
         assert (
-            form_dic["dst_department"].is_branch() if logged_user_is_goods_yard else True
+            form_dic["dst_department"].is_branch if logged_user_is_goods_yard else True
         ), "货场只能发车到分支机构"
         # 对于货场, 只允许有"货场入库"或"货场配载"的运单
         if is_logged_user_is_goods_yard(request):
