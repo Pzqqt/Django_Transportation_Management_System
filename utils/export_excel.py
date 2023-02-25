@@ -1,8 +1,15 @@
 import itertools
+from tempfile import NamedTemporaryFile
 
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, Side
-from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.writer.excel import save_workbook
+
+def save_virtual_workbook(workbook):
+    with NamedTemporaryFile() as f:
+        save_workbook(workbook, f)
+        f.seek(0)
+        return f.read()
 
 _BD = Side(style='thin', color="000000")
 _CENTER = Alignment(
