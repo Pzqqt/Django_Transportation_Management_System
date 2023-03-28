@@ -130,17 +130,6 @@ class Department(models.Model):
     enable_cargo_price = models.BooleanField("允许代收", default=False)
     is_branch_group = models.BooleanField("分支机构分组", default=False)
 
-    class _DepartmentManager(models.Manager):
-        """ 新增了两个自定义的查询方法 """
-
-        def filter_is_branch(self):
-            return self.filter(father_department__is_branch_group=True)
-
-        def filter_is_goods_yard(self):
-            return self.filter(name="货场")
-
-    objects = _DepartmentManager()
-
     class Meta:
         # 设置模型对象的直观的名称
         verbose_name = "部门"
@@ -175,6 +164,14 @@ class Department(models.Model):
     is_branch.admin_order_field = "father_department"
     is_branch.boolean = True
     is_branch.short_description = "分支机构"
+
+    @classmethod
+    def queryset_is_branch(cls):
+        return cls.objects.filter(father_department__is_branch_group=True)
+
+    @classmethod
+    def queryset_is_goods_yard(cls):
+        return cls.objects.filter(name="货场")
 
     @staticmethod
     @ExpireLruCache(expire_time=timezone.timedelta(minutes=5))

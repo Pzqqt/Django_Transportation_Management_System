@@ -74,8 +74,8 @@ class WaybillForm(_ModelFormBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # 到达部门只能选择分支机构, 如果该部门的单价字段不为零就认为是分支机构
-        self.fields["dst_department"].queryset = Department.objects.filter_is_branch()
+        # 到达部门只能选择分支机构
+        self.fields["dst_department"].queryset = Department.queryset_is_branch()
         # 只显示已启用的客户
         self.fields["src_customer"].queryset = Customer.objects.filter(enabled=True)
         self.fields["src_customer"].sort_key = lambda c: (-c.is_vip, c.name)
@@ -127,7 +127,7 @@ class WaybillForm(_ModelFormBase):
     def init_from_request(cls, request, *args, **kwargs):
         form_obj = cls(*args, **kwargs)
         # 发货部门只能选用户所属部门
-        form_obj.fields["src_department"].queryset = Department.objects.filter_is_branch().filter(
+        form_obj.fields["src_department"].queryset = Department.queryset_is_branch().filter(
             id=request.session["user"]["department_id"], enable_src=True,
         )
         # 如果有可选的发货部门, 则不允许发货部门选择空值 (默认有且只有一个可选项, 就是用户所属的部门)
@@ -247,12 +247,8 @@ class WaybillSearchForm(_FormBase):
     sign_for_date_start = forms.DateField(label="签收日期", required=False)
     sign_for_date_end = forms.DateField(label="至", required=False)
 
-    src_department = forms.ModelChoiceField(
-        Department.objects.filter_is_branch(), required=False, label="开票部门",
-    )
-    dst_department = forms.ModelChoiceField(
-        Department.objects.filter_is_branch(), required=False, label="到达部门",
-    )
+    src_department = forms.ModelChoiceField(Department.queryset_is_branch(), required=False, label="开票部门")
+    dst_department = forms.ModelChoiceField(Department.queryset_is_branch(), required=False, label="到达部门")
 
     src_department_group = forms.ChoiceField(
         label="-", required=False, choices=DEPARTMENT_GROUP_CHOICES.items(), initial=0,
@@ -421,9 +417,9 @@ class WaybillQuickSearchForm(forms.Form):
                 return r_queryset
         # 假设用户输入的是发货人/收货人的姓名/电话号
         return Waybill.objects.filter(
-                Q(src_customer_name=search_str) | Q(dst_customer_name=search_str) |
-                Q(src_customer_phone=search_str) | Q(dst_customer_phone=search_str)
-            )
+            Q(src_customer_name=search_str) | Q(dst_customer_name=search_str) |
+            Q(src_customer_phone=search_str) | Q(dst_customer_phone=search_str)
+        )
 
 class SignForSearchForm(WaybillSearchForm):
 
@@ -501,10 +497,10 @@ class TransportOutForm(_ModelFormBase):
         form_obj.fields["src_department"].queryset = Department.objects.filter(id=user.department_id)
         # 货场只能发车到分支机构
         if user_type == User.Types.GoodsYard:
-            form_obj.fields["dst_department"].queryset = Department.objects.filter_is_branch()
+            form_obj.fields["dst_department"].queryset = Department.queryset_is_branch()
         # 其他任何部门都只能发车到货场
         else:
-            form_obj.fields["dst_department"].queryset = Department.objects.filter_is_goods_yard()
+            form_obj.fields["dst_department"].queryset = Department.queryset_is_goods_yard()
         return form_obj
 
     def add_id_field(self, id_: int, id_full: str):
@@ -644,11 +640,11 @@ class TransportOutSearchForm(_FormBase):
         initial=timezone.make_naive(timezone.now()).strftime("%Y-%m-%d"),
     )
     src_department = forms.ModelChoiceField(
-        Department.objects.filter_is_branch() | Department.objects.filter_is_goods_yard(),
+        Department.queryset_is_branch() | Department.queryset_is_goods_yard(),
         required=False, label="发车部门",
     )
     dst_department = forms.ModelChoiceField(
-        Department.objects.filter_is_branch() | Department.objects.filter_is_goods_yard(),
+        Department.queryset_is_branch() | Department.queryset_is_goods_yard(),
         required=False, label="到达部门",
     )
 
@@ -791,7 +787,7 @@ class DepartmentPaymentDetailForm(_ModelFormBase):
 
 class DepartmentPaymentAddForm(_FormBase):
     src_department = forms.ModelMultipleChoiceField(
-        Department.objects.filter_is_branch(), required=False, label="回款部门",
+        Department.queryset_is_branch(), required=False, label="回款部门",
     )
     src_department_group = forms.ChoiceField(
         label="-", choices=tuple(DEPARTMENT_GROUP_CHOICES.items()), initial=0,
@@ -857,9 +853,7 @@ class DepartmentPaymentAddForm(_FormBase):
                 new_dp_obj.set_waybills_auto()
 
 class DepartmentPaymentSearchForm(_FormBase):
-    src_department = forms.ModelChoiceField(
-        Department.objects.filter_is_branch(), required=False, label="回款部门",
-    )
+    src_department = forms.ModelChoiceField(Department.queryset_is_branch(), required=False, label="回款部门")
     src_department_group = forms.ChoiceField(
         label="-", required=False, choices=DEPARTMENT_GROUP_CHOICES.items(), initial=0,
     )
