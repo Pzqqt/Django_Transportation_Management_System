@@ -1,6 +1,5 @@
 from functools import partial
 from itertools import chain
-from collections import UserList
 import logging
 import traceback
 
@@ -31,24 +30,23 @@ class SortableModelChoiceField(forms.ModelChoiceField):
     尽管我们可以对queryset属性使用`order_by`进行排序
     但是还需要考虑对数据库的优化(尽可能避免explain中出现`using filesort`)
 
-    因此, 我们在ModelChoiceIterator中添加一个额外可选的属性, 以允许在遍历choices时对其进行排序
-    这是在应用层的排序, 意在减少数据库的压力
+    因此, 我们在ModelChoiceIterator中添加一个额外可选的属性, 以允许在遍历choices前对其进行排序
+    这是在应用层的排序, 旨在减少数据库的压力
     """
 
     class _ModelChoiceIterator(forms.models.ModelChoiceIterator):
 
-        class _FakeQuerySet(UserList):
-            _prefetch_related_lookups = ()
-
-            def iterator(self):
-                yield from self
-
         def __iter__(self):
+            choices = super().__iter__()
             sort_key = self.field.sort_key
-            if sort_key is not None:
-                # sorted之后(立即执行数据库查询), _prefetch_related_lookups就没有意义了
-                self.queryset = self._FakeQuerySet(sorted(self.queryset, key=sort_key))
-            return super().__iter__()
+            if sort_key is None:
+                yield from choices
+                return
+            if self.field.empty_label is not None:
+                choices = list(choices)
+                yield choices[0]
+                choices = choices[1:]
+            yield from sorted(choices, key=lambda choice: sort_key(choice[0].instance))
 
     iterator = _ModelChoiceIterator
 
