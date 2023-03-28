@@ -1249,7 +1249,7 @@ class ManageUsers(_FormBase):
     administrator = forms.BooleanField(label="管理员", required=False, initial=False)
     department = forms.ChoiceField(
         label="所属部门",
-        choices=((None, "---------"), *((dept.id, dept.tree_str()) for dept in Department.objects.all())),
+        choices=((None, "---------"), *((dept.id, dept.tree_str) for dept in Department.objects.all())),
     )
 
     def __init__(self, *args, **kwargs):
