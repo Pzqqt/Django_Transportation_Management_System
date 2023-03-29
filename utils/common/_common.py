@@ -43,9 +43,7 @@ class SortableModelChoiceField(forms.ModelChoiceField):
                 yield from choices
                 return
             if self.field.empty_label is not None:
-                choices = list(choices)
-                yield choices[0]
-                choices = choices[1:]
+                yield next(choices)
             yield from sorted(choices, key=lambda choice: sort_key(choice[0].instance))
 
     iterator = _ModelChoiceIterator
