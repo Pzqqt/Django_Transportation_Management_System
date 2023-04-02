@@ -999,7 +999,7 @@ class CargoPricePaymentSearchForm(_FormBase):
         form_obj = cls(*args, **kwargs)
         user = get_logged_user(request)
         # 分支机构和货场用户只能查询自己创建的转账单(虽然货场用户不应该有创建转账单的权限...)
-        if user.get_type >= User.Types.Branch:
+        if user.get_type in (User.Types.Branch, User.Types.GoodsYard):
             form_obj.fields["create_user"].queryset = User.objects.filter(id=user.id)
             form_obj.fields["create_department"].queryset = Department.objects.none()
         return form_obj
