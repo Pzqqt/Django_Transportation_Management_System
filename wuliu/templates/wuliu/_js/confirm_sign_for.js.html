@@ -35,19 +35,20 @@ $(document).ready(function() {
       function(data, status) {
         if (data.code === 200) {
           let added_waybill_ids = [];
+          let waybill_id = data.data.waybill_id;
           $(".card[data-waybill_id]").each(function() {
             added_waybill_ids.push(parseInt($(this).attr("data-waybill_id")));
           });
           // 重复添加
-          if (added_waybill_ids.indexOf(data.data.waybill_id) !== -1) {
+          if (added_waybill_ids.indexOf(waybill_id) !== -1) {
             $('#form-add_sign_for_waybill [name="add_waybill_id"]').val("");
             return;
           }
           $('.accordion').append(data.data.html);
-          $('.card[data-waybill_id=' + add_waybill_id + '] .card-header').click(function() {
+          $('.card[data-waybill_id=' + waybill_id + '] .card-header').click(function() {
             $(this).parent().find(".card-body").slideToggle();
           });
-          $('.card[data-waybill_id=' + add_waybill_id + '] .waybill-info-remove').click(function() {
+          $('.card[data-waybill_id=' + waybill_id + '] .waybill-info-remove').click(function() {
             $(this).parents(".card[data-waybill_id]").slideUp(300, function() {
               $(this).remove();
               gen_total_info();
