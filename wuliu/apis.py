@@ -499,9 +499,13 @@ class StartTransportOut(ActionApi):
         # 禁止发车已发车的车次
         if to_obj.status != TransportOut.Statuses.Ready:
             raise ActionApi.AbortException('只允许对"货物配载"状态的车次进行发车操作！')
+        # 如果该车次没有配载任何运单
+        to_obj_waybills = to_obj.waybills.all()
+        if not to_obj_waybills.exists():
+            raise ActionApi.AbortException("该车次没有配载任何运单！")
         # 确保车次中所有运单的状态一致, 并处于"已配载"或"货场配载"状态
         try:
-            waybills_status = to_obj.waybills.order_by("status").values("status").distinct()
+            waybills_status = to_obj_waybills.order_by("status").values("status").distinct()
             assert len(waybills_status) == 1
             waybills_status = waybills_status[0]["status"]
             if is_logged_user_is_goods_yard(self.request):
