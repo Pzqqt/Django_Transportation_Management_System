@@ -453,9 +453,14 @@ class DropTransportOut(ActionApi):
         # 禁止删除已发车的车次
         if to_obj.status != TransportOut.Statuses.Ready:
             raise ActionApi.AbortException('只允许删除"货物配载"状态的车次！')
+        # 如果该车次没有配载任何运单
+        to_obj_waybills = to_obj.waybills.all()
+        if not to_obj_waybills.exists():
+            self._private_dic = {"to_obj": to_obj, "waybills_status": 0}
+            return
         # 确保车次中所有运单的状态一致, 并处于"已配载"或"货场配载"状态
         try:
-            waybills_status = to_obj.waybills.order_by("status").values("status").distinct()
+            waybills_status = to_obj_waybills.order_by("status").values("status").distinct()
             assert len(waybills_status) == 1
             waybills_status = waybills_status[0]["status"]
             if is_logged_user_is_goods_yard(self.request):
@@ -471,7 +476,8 @@ class DropTransportOut(ActionApi):
     def write_database(self):
         to_obj = self._private_dic["to_obj"]
         waybills_status = self._private_dic["waybills_status"]
-        to_obj.waybills.update(status=waybills_status-1)
+        if waybills_status != 0:
+            to_obj.waybills.update(status=waybills_status-1)
         to_obj.delete()
 
 class StartTransportOut(ActionApi):
