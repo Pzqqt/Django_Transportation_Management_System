@@ -15,20 +15,29 @@
                         {% show_form_input_field form.id_ "" "col-6 col-md-3" %}
                         {% show_form_input_field form.id "" "" %}
                       {% if detail_view %}
-                        {% show_form_input_field form.status "" "col-6 col-md-2" %}
-                        {% show_form_input_field form.create_time %}
-                        {% show_form_input_field form.start_time %}
-                        {% show_form_input_field form.end_time %}
+                        {% show_form_input_field form.RO_status "" "col-6 col-md-2" %}
+                        {% show_form_input_field form.RO_create_time %}
+                        {% show_form_input_field form.RO_start_time %}
+                        {% show_form_input_field form.RO_end_time %}
                       {% endif %}
                     </div>
                   {% endif %}
                     <div class="row">
+                      {% if detail_view %}
+                        {% show_form_input_field form.RO_src_department "发车部门" "col-6 col-md-3" %}
+                        {% show_form_input_field form.RO_dst_department "到达部门" "col-6 col-md-3" %}
+                      {% else %}
                         {% show_form_input_field form.src_department "发车部门" "col-6 col-md-3" %}
                         {% show_form_input_field form.dst_department "到达部门" "col-6 col-md-3" %}
+                      {% endif %}
                     </div>
                     <legend class="row">车次信息</legend>
                     <div class="row">
+                      {% if detail_view %}
+                        {% show_form_input_field form.RO_truck "车牌号" "col-12 col-md-3" %}
+                      {% else %}
                         {% show_form_input_field form.truck "选择车辆" "col-12 col-md-3" %}
+                      {% endif %}
                         {% show_form_input_field form.driver_name "" "col-6 col-md-3" %}
                         {% show_form_input_field form.driver_phone "" "col-6 col-md-3" %}
                     </div>

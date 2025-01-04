@@ -178,41 +178,39 @@ class WaybillForm(_ModelFormBase):
 
     def change_to_detail_form(self):
         """ 将表单更改为运单详情页面的表单 """
-        assert self.instance.id is None, "若要生成只读表单, 应该在初始化表单时通过data参数初始化数据, 不要使用instance参数"
-        assert self.is_bound, "表单尚未绑定, 不能转换为详情页表单"
         change_dic = {
-            "src_department": {
+            "RO_src_department": {
                 "label": Waybill.src_department.field.verbose_name,
-                "value": self.data["src_department"],
+                "value": self.instance.src_department.name,
             },
-            "dst_department": {
+            "RO_dst_department": {
                 "label": Waybill.dst_department.field.verbose_name,
-                "value": self.data["dst_department"],
+                "value": self.instance.dst_department.name,
             },
-            "src_customer": {
+            "RO_src_customer": {
                 "label": Waybill.src_customer.field.verbose_name,
-                "value": self.data["src_customer"].name if self.data["src_customer"] else None,
+                "value": str(self.instance.src_customer) if self.instance.src_customer else None,
             },
-            "dst_customer": {
+            "RO_dst_customer": {
                 "label": Waybill.dst_customer.field.verbose_name,
-                "value": self.data["dst_customer"].name if self.data["dst_customer"] else None,
+                "value": str(self.instance.dst_customer) if self.instance.dst_customer else None,
             },
-            "fee_type": {
+            "RO_fee_type": {
                 "label": "支付方式",
-                "value": self.data["fee_type"],
+                "value": Waybill.FeeTypes(self.instance.fee_type).label,
             },
-            "create_time": {
+            "RO_create_time": {
                 "label": Waybill.create_time.field.verbose_name,
-                "value": timezone.make_naive(self.data["create_time"]).strftime("%Y-%m-%d %H:%M:%S"),
+                "value": timezone.make_naive(self.instance.create_time).strftime("%Y-%m-%d %H:%M:%S"),
             },
-            "status": {
+            "RO_status": {
                 "label": "运单状态",
-                "value": self.data["status"],
+                "value": self.instance.Statuses(self.instance.status).label,
             },
-            "cargo_price_status": {
-                "label": "代收款状态",
-                "value": self.data["cargo_price_status"],
-            },
+            # "RO_cargo_price_status": {
+            #     "label": Waybill.cargo_price_status.field.verbose_name,
+            #     "value": self.instance.cargo_price_status,
+            # },
         }
         # 重写/添加这些fields
         # 由于ChoiceField设置为readonly之后仍然可以在前端进行修改, 所以将ChoiceField全部改成CharField
@@ -221,10 +219,10 @@ class WaybillForm(_ModelFormBase):
             value_ = info["value"]
             self.fields[name] = forms.CharField(label=label_)
             self.fields[name].widget.attrs["class"] = "form-control"
-            self.data[name] = value_
+            self.fields[name].widget.attrs["value"] = value_
         # 由于ChoiceField被改成CharField, fee_type的value属性被写入为支付方式的字符串
         # 但是前端计算总价仍然需要引用fee_type的id, 所以将id写入该widget的自定义属性中
-        self.fields["fee_type"].widget.attrs["data-fee_type_id"] = self.data["fee_type_id"]
+        self.fields["fee_type"].widget.attrs["data-fee_type_id"] = self.instance.fee_type
         # 将全部fields设置为只读
         for field in self.fields.values():
             field.widget.attrs["readonly"] = True
@@ -562,41 +560,39 @@ class TransportOutForm(_ModelFormBase):
 
     def change_to_detail_form(self):
         """ 将表单更改为运单详情页面的表单 """
-        assert self.instance.id is None, "若要生成只读表单, 应该在初始化表单时通过data参数初始化数据, 不要使用instance参数"
-        assert self.is_bound, "表单尚未绑定, 不能转换为详情页表单"
         change_dic = {
-            "src_department": {
+            "RO_src_department": {
                 "label": TransportOut.src_department.field.verbose_name,
-                "value": self.data["src_department"],
+                "value": self.instance.src_department.name,
             },
-            "dst_department": {
+            "RO_dst_department": {
                 "label": TransportOut.dst_department.field.verbose_name,
-                "value": self.data["dst_department"],
+                "value": self.instance.dst_department.name,
             },
-            "truck": {
+            "RO_truck": {
                 "label": "车牌号",
-                "value": self.data["truck"],
+                "value": self.instance.truck.number_plate,
             },
-            "status": {
+            "RO_status": {
                 "label": "车次状态",
-                "value": self.data["status"],
+                "value": self.instance.Statuses(self.instance.status).label,
             },
-            "create_time": {
+            "RO_create_time": {
                 "label": TransportOut.create_time.field.verbose_name,
-                "value": timezone.make_naive(self.data["create_time"]).strftime("%Y-%m-%d %H:%M:%S"),
+                "value": timezone.make_naive(self.instance.create_time).strftime("%Y-%m-%d %H:%M:%S"),
             },
-            "start_time": {
+            "RO_start_time": {
                 "label": TransportOut.start_time.field.verbose_name,
                 "value": (
-                    timezone.make_naive(self.data["start_time"]).strftime("%Y-%m-%d %H:%M:%S")
-                    if self.data["start_time"] else ""
+                    timezone.make_naive(self.instance.start_time).strftime("%Y-%m-%d %H:%M:%S")
+                    if self.instance.start_time else ""
                 ),
             },
-            "end_time": {
+            "RO_end_time": {
                 "label": TransportOut.end_time.field.verbose_name,
                 "value": (
-                    timezone.make_naive(self.data["end_time"]).strftime("%Y-%m-%d %H:%M:%S")
-                    if self.data["end_time"] else ""
+                    timezone.make_naive(self.instance.end_time).strftime("%Y-%m-%d %H:%M:%S")
+                    if self.instance.end_time else ""
                 ),
             },
         }
@@ -606,7 +602,7 @@ class TransportOutForm(_ModelFormBase):
             value_ = info["value"]
             self.fields[name] = forms.CharField(label=label_)
             self.fields[name].widget.attrs["class"] = "form-control"
-            self.data[name] = value_
+            self.fields[name].widget.attrs["value"] = value_
         # 将全部fields设置为只读
         for field in self.fields.values():
             field.widget.attrs["readonly"] = True
@@ -745,23 +741,23 @@ class DepartmentPaymentDetailForm(_ModelFormBase):
         change_dic = {
             "id_": {
                 "label": "账单编号",
-                "value": self.data["id_"],
+                "value": self.instance.get_full_id,
             },
-            "status": {
+            "RO_status": {
                 "label": DepartmentPayment.status.field.verbose_name,
-                "value": self.data["status"],
+                "value": DepartmentPayment.Statuses(self.instance.status).label,
             },
-            "src_department": {
+            "RO_src_department": {
                 "label": DepartmentPayment.src_department.field.verbose_name,
-                "value": self.data["src_department"],
+                "value": self.instance.src_department.name,
             },
-            "dst_department": {
+            "RO_dst_department": {
                 "label": DepartmentPayment.dst_department.field.verbose_name,
-                "value": self.data["dst_department"],
+                "value": self.instance.dst_department.name,
             },
-            "create_time": {
+            "RO_create_time": {
                 "label": DepartmentPayment.create_time.field.verbose_name,
-                "value": timezone.make_naive(self.data["create_time"]).strftime("%Y-%m-%d %H:%M:%S"),
+                "value": timezone.make_naive(self.instance.create_time).strftime("%Y-%m-%d %H:%M:%S"),
             },
         }
         for name, info in change_dic.items():
@@ -769,7 +765,7 @@ class DepartmentPaymentDetailForm(_ModelFormBase):
             value_ = info["value"]
             self.fields[name] = forms.CharField(label=label_)
             self.fields[name].widget.attrs["class"] = "form-control"
-            self.data[name] = value_
+            self.fields[name].widget.attrs["value"] = value_
         # 将全部fields设置为只读
         for field in self.fields.values():
             if isinstance(field, forms.DateField):
@@ -940,26 +936,25 @@ class CargoPricePaymentForm(_ModelFormBase):
 
     def change_to_detail_form(self):
         """ 将表单更改为详情页面的表单 """
-        del self.fields["customer"]
         change_dic = {
-            "create_time": {
+            "RO_create_time": {
                 "label": CargoPricePayment.create_time.field.verbose_name,
-                "value": timezone.make_naive(self.data["create_time"]).strftime("%Y-%m-%d %H:%M:%S"),
+                "value": timezone.make_naive(self.instance.create_time).strftime("%Y-%m-%d %H:%M:%S"),
             },
-            "settle_accounts_time": {
+            "RO_settle_accounts_time": {
                 "label": CargoPricePayment.settle_accounts_time.field.verbose_name,
                 "value": (
-                    timezone.make_naive(self.data["settle_accounts_time"]).strftime("%Y-%m-%d %H:%M:%S")
-                    if self.data["settle_accounts_time"] else ""
+                    timezone.make_naive(self.instance.settle_accounts_time).strftime("%Y-%m-%d %H:%M:%S")
+                    if self.instance.settle_accounts_time else ""
                 ),
             },
-            "status": {
+            "RO_status": {
                 "label": CargoPricePayment.status.field.verbose_name,
-                "value": self.data["status"],
+                "value": CargoPricePayment.Statuses(self.instance.status).label
             },
-            "reject_reason": {
+            "RO_reject_reason": {
                 "label": CargoPricePayment.reject_reason.field.verbose_name,
-                "value": self.data["reject_reason"],
+                "value": self.instance.reject_reason,
             },
         }
         # 重写/添加这些fields
@@ -969,7 +964,7 @@ class CargoPricePaymentForm(_ModelFormBase):
             value_ = info["value"]
             self.fields[name] = forms.CharField(label=label_)
             self.fields[name].widget.attrs["class"] = "form-control"
-            self.data[name] = value_
+            self.fields[name].widget.attrs["value"] = value_
         for field in self.fields.values():
             field.widget.attrs["readonly"] = True
         _destroy_model_form_save(self)

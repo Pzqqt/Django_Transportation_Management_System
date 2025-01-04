@@ -12,19 +12,19 @@
                     {{ form.id }}
                     <div class="row">
                         {% show_form_input_field form.id_ "" "col-8 col-md-3" %}
-                      {% if form.status %}
+                      {% if detail_view %}
+                        {% show_form_input_field form.RO_status "" "col-4 col-md-3" %}
+                        {% show_form_input_field form.RO_create_time "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.RO_settle_accounts_time "" "col-6 col-md-3" %}
+                      {% else %}
                         {% show_form_input_field form.status "" "col-4 col-md-3" %}
-                      {% endif %}
-                      {% if form.create_time %}
                         {% show_form_input_field form.create_time "" "col-6 col-md-3" %}
-                      {% endif %}
-                      {% if form.settle_accounts_time %}
                         {% show_form_input_field form.settle_accounts_time "" "col-6 col-md-3" %}
                       {% endif %}
                     </div>
                   {% endif %}
                     <div class="row">
-                      {% if form.customer %}
+                      {% if not detail_view %}
                         {% show_form_input_field form.customer "" "col-12 col-md-3" %}
                       {% endif %}
                         {% show_form_input_field form.payee_name "" "col-5 col-md-3" %}
@@ -38,7 +38,7 @@
                     <div class="row">
                         {% show_form_input_field form.remark "" "col-12 col-md-6" %}
                       {% if detail_view %}
-                        {% show_form_input_field form.reject_reason "" "col-12 col-md-6" %}
+                        {% show_form_input_field form.RO_reject_reason "" "col-12 col-md-6" %}
                       {% endif %}
                     </div>
                     <input name="waybill_ids" hidden>

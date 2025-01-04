@@ -17,14 +17,19 @@
                         {% show_form_input_field form.id_ "" "col-6 col-md-3" %}
                         {% show_form_input_field form.id "" "" %}
                       {% if detail_view %}
-                        {% show_form_input_field form.create_time "" "col-6 col-md-3" %}
-                        {% show_form_input_field form.status "" "col-6 col-md-2" %}
+                        {% show_form_input_field form.RO_create_time "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.RO_status "" "col-6 col-md-2" %}
                       {% endif %}
                     </div>
                   {% endif %}
                     <div class="row mb-2">
+                      {% if detail_view %}
+                        {% show_form_input_field form.RO_src_department "" "col-6 col-md-3" %}
+                        {% show_form_input_field form.RO_dst_department "" "col-6 col-md-3" %}
+                      {% else %}
                         {% show_form_input_field form.src_department "" "col-6 col-md-3" %}
                         {% show_form_input_field form.dst_department "" "col-6 col-md-3" %}
+                      {% endif %}
                     </div>
                     <div class="row">
                         <div class="col-12 col-md-6"><div class="callout callout-info shadow">
@@ -32,7 +37,11 @@
                                 <h3 class="card-title"><i class="fas fa-map-marker-alt mr-2"></i>发货人信息</h3>
                             </div>
                             <div class="row">
+                              {% if detail_view %}
+                                {% show_form_input_field form.RO_src_customer "客户" "col-12" %}
+                              {% else %}
                                 {% show_form_input_field form.src_customer "选择客户" "col-12" %}
+                              {% endif %}
                                 {% show_form_input_field form.src_customer_name "姓名" "col-5" %}
                                 {% show_form_input_field form.src_customer_phone "电话" "col-7" %}
                                 {% show_form_input_field form.src_customer_credential_num "身份证号码" "col-md-5" %}
@@ -44,7 +53,11 @@
                                 <h3 class="card-title"><i class="fas fa-map-marker-alt mr-2"></i>收货人信息</h3>
                             </div>
                             <div class="row">
+                              {% if detail_view %}
+                                {% show_form_input_field form.RO_dst_customer "客户" "col-12" %}
+                              {% else %}
                                 {% show_form_input_field form.dst_customer "选择客户" "col-12" %}
+                              {% endif %}
                                 {% show_form_input_field form.dst_customer_name "姓名" "col-5" %}
                                 {% show_form_input_field form.dst_customer_phone "电话" "col-7" %}
                                 {% show_form_input_field form.dst_customer_credential_num "身份证号码" "col-md-5" %}
@@ -70,7 +83,11 @@
                   {% endif %}
                     <div class="row">
                         {% show_form_input_field form.fee "运费 (元)" "col-6 col-md-2" %}
+                      {% if detail_view %}
+                        {% show_form_input_field form.RO_fee_type "支付方式" "col-6 col-md-2" %}
+                      {% else %}
                         {% show_form_input_field form.fee_type "支付方式" "col-6 col-md-2" %}
+                      {% endif %}
                         {% show_form_input_field form.customer_remark "" %}
                         {% show_form_input_field form.company_remark "" %}
                     </div>

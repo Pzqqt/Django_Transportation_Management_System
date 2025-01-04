@@ -23,7 +23,7 @@ from .models import (
 from .common import (
     get_global_settings, login_required, check_permission, check_administrator, is_logged_user_has_perm,
     get_logged_user, get_logged_user_type, is_logged_user_is_goods_yard,
-    waybill_to_dict, transport_out_to_dict, department_payment_to_dict, cargo_price_payment_to_dict,
+    department_payment_to_dict, cargo_price_payment_to_dict,
 )
 from utils.common import del_session_item, validate_comma_separated_integer_list_and_split
 
@@ -85,11 +85,7 @@ def _transport_out_detail_view(request, render_path):
     if not transport_out_id:
         return HttpResponseBadRequest()
     transport_out = get_object_or_404(TransportOut, pk=transport_out_id)
-    to_dic = transport_out_to_dict(transport_out)
-    # 注: 此处只能通过data参数传入TransportOut的字典格式, 不能使用instance参数传入TransportOut对象
-    # 否则前端渲染时仍然是从instance中取值, 导致某些表单字段不显示
-    form = forms.TransportOutForm.init_from_request(request, data=to_dic)
-    # form = forms.TransportOutForm.init_from_request(request, instance=transport_out)
+    form = forms.TransportOutForm.init_from_request(request, instance=transport_out)
     form.add_id_field(id_=transport_out.id, id_full=transport_out.get_full_id)
     form.change_to_detail_form()
     return render(
@@ -655,11 +651,7 @@ def edit_waybill_js(request):
 @login_required(raise_404=True)
 def detail_waybill(request, waybill_id):
     waybill = get_object_or_404(Waybill, pk=waybill_id)
-    waybill_dic = waybill_to_dict(waybill)
-    # 注: 此处只能通过data参数传入Waybill的字典格式, 不能使用instance参数传入Waybill对象
-    # 否则前端渲染时仍然是从instance中取值, 导致某些表单字段不显示
-    form = forms.WaybillForm.init_from_request(request, data=waybill_dic)
-    # form = forms.WaybillForm.init_from_request(request, instance=waybill)
+    form = forms.WaybillForm.init_from_request(request, instance=waybill)
     form.add_id_field(id_=waybill.id, id_full=waybill.get_full_id)
     form.change_to_detail_form()
     wb_routing = WaybillRouting.objects.filter(waybill_id=waybill_id)
@@ -1128,7 +1120,7 @@ def add_department_payment(request):
 def detail_department_payment(request, dp_id):
     dp_obj = get_object_or_404(DepartmentPayment, pk=dp_id)
     dp_dic = department_payment_to_dict(dp_obj)
-    form = forms.DepartmentPaymentDetailForm(dp_dic)
+    form = forms.DepartmentPaymentDetailForm(instance=dp_obj)
     return render(
         request,
         "wuliu/finance/department_payment/detail_department_payment.html",
@@ -1240,7 +1232,7 @@ def add_cargo_price_payment(request):
 def detail_cargo_price_payment(request, cpp_id):
     cpp_obj = get_object_or_404(CargoPricePayment, pk=cpp_id)
     cpp_dic = cargo_price_payment_to_dict(cpp_obj)
-    form = forms.CargoPricePaymentForm(cpp_dic)
+    form = forms.CargoPricePaymentForm(instance=cpp_obj)
     form.add_id_field(cpp_obj.id, cpp_obj.get_full_id)
     form.change_to_detail_form()
     return render(
